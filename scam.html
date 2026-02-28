@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scam Threat Radar — Singapore 2025</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #root { height: 100%; }
+    body { background: #FAF7F2; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const raw = [
+      { name: "Investment", short: "INV", amount25: 336.2, amount24: 320.7, cases25: 5462, cases24: 6814, icon: "📈" },
+      { name: "Gov't Impersonation", short: "GOV", amount25: 242.9, amount24: 151.3, cases25: 3363, cases24: 1504, icon: "🏛️" },
+      { name: "Job", short: "JOB", amount25: 123.5, amount24: 156.2, cases25: 5575, cases24: 9043, icon: "💼" },
+      { name: "Phishing", short: "PHI", amount25: 39.9, amount24: 59.4, cases25: 6264, cases24: 8552, icon: "🎣" },
+      { name: "Insurance", short: "INS", amount25: 25.2, amount24: 0, cases25: 1003, cases24: 0, icon: "🛡️" },
+      { name: "Love", short: "LOV", amount25: 24.9, amount24: 27.6, cases25: 917, cases24: 852, icon: "💔" },
+      { name: "E-commerce", short: "ECM", amount25: 16.7, amount24: 17.5, cases25: 6703, cases24: 11665, icon: "🛒" },
+      { name: "Loan", short: "LON", amount25: 7, amount24: 6, cases25: 935, cases24: 1154, icon: "🏦" },
+      { name: "Fake Friend", short: "FFC", amount25: 4.7, amount24: 13.6, cases25: 1551, cases24: 4179, icon: "📞" },
+      { name: "Sexual Services", short: "SEX", amount25: 3.9, amount24: 4.1, cases25: 1150, cases24: 1162, icon: "⚠️" },
+    ];
+
+    const C = {
+      olive: "#4E5A2B", oliveDark: "#3A4320", oliveLight: "#F5F6F0",
+      brown: "#AC7222", brownLight: "#FBF5EC",
+      mustard: "#E1B83B", goldenBrown: "#D3963E", mustardLight: "#FEF9E7",
+      charcoal: "#282E2A", textMid: "#6B7264", textDim: "#9A9A8A",
+      warmWhite: "#FFFEF9", cream: "#FAF7F2", border: "#E0E2D8",
+    };
+
+    const W = 700, H = 480;
+    const PAD = { top: 50, right: 40, bottom: 60, left: 70 };
+    const pw = W - PAD.left - PAD.right;
+    const ph = H - PAD.top - PAD.bottom;
+    const maxCases = 12000, maxAmt = 360;
+
+    const scaleX = (v) => PAD.left + (v / maxCases) * pw;
+    const scaleY = (v) => PAD.top + ph - (v / maxAmt) * ph;
+
+    const costPerVictim = (d, yr) => {
+      const c = yr === 25 ? d.cases25 : d.cases24;
+      const a = yr === 25 ? d.amount25 : d.amount24;
+      return c > 0 ? (a * 1000000) / c : 0;
+    };
+
+    const threatColors = ["#7A8B5C", "#6B7B3E", C.olive, C.goldenBrown, C.mustard, C.brown, "#C47A1E", "#B85C1A"];
+    const getThreatColor = (cpv) => threatColors[Math.min(7, Math.floor(cpv / 12000))];
+
+    function ScamRadar() {
+      const [hovered, setHovered] = useState(null);
+      const [showYear, setShowYear] = useState("both");
+      const [animate, setAnimate] = useState(false);
+
+      useEffect(() => { setTimeout(() => setAnimate(true), 100); }, []);
+
+      return (
+        <div style={{
+          fontFamily: "'Lexend', system-ui, sans-serif",
+          background: C.cream, color: C.charcoal,
+          minHeight: "100vh", padding: 0, position: "relative", overflow: "hidden",
+        }}>
+          {/* Dot grid */}
+          <div style={{
+            position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0,
+            backgroundImage: `radial-gradient(circle, ${C.border} 1px, transparent 1px)`,
+            backgroundSize: "32px 32px", opacity: 0.35,
+          }} />
+
+          {/* Blobs */}
+          <div style={{
+            position: "fixed", top: -120, right: -80, width: 400, height: 400, borderRadius: "50%",
+            background: C.oliveLight, opacity: 0.5, pointerEvents: "none", zIndex: 0,
+          }} />
+          <div style={{
+            position: "fixed", bottom: -100, left: -60, width: 300, height: 300, borderRadius: "50%",
+            background: C.mustardLight, opacity: 0.45, pointerEvents: "none", zIndex: 0,
+          }} />
+
+          {/* Header */}
+          <div style={{ position: "relative", zIndex: 1, padding: "36px 40px 0", maxWidth: 920, margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+              <span style={{
+                display: "inline-block", padding: "5px 14px", borderRadius: 100,
+                fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase",
+                background: C.brownLight, color: C.brown,
+              }}>Singapore Police Force</span>
+              <span style={{
+                display: "inline-block", padding: "5px 14px", borderRadius: 100,
+                fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase",
+                background: C.mustardLight, color: C.goldenBrown,
+                border: "1px solid rgba(225,184,59,0.3)",
+              }}>2025 Annual Report</span>
+            </div>
+
+            <h1 style={{
+              fontSize: "clamp(30px, 4.5vw, 48px)", fontWeight: 900, lineHeight: 1.05,
+              margin: 0, color: C.charcoal, letterSpacing: "-0.02em",
+            }}>Scam Threat Radar</h1>
+
+            <div style={{ width: 50, height: 3, background: C.olive, borderRadius: 2, margin: "14px 0" }} />
+
+            <p style={{
+              fontSize: 14, color: C.textMid, marginTop: 0, maxWidth: 620, lineHeight: 1.8, fontWeight: 300,
+            }}>
+              Each dot is a scam type plotted by <span style={{ color: C.olive, fontWeight: 600 }}>volume of victims</span> (→) against <span style={{ color: C.olive, fontWeight: 600 }}>total financial damage</span> (↑). Dot color reflects cost per victim. Trails show year-over-year movement.
+            </p>
+
+            {/* Stat cards */}
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+              gap: 12, marginTop: 20, marginBottom: 24,
+            }}>
+              {[
+                { label: "TOTAL LOST 2025", val: "$825.3M", delta: "+9.0%", accent: "mustard", up: true },
+                { label: "TOTAL LOST 2024", val: "$756.9M", delta: "baseline", accent: "olive", up: null },
+                { label: "CASES 2025", val: "32,923", delta: "−26.7%", accent: "olive", up: false },
+                { label: "AVG LOSS / VICTIM", val: "$25.1K", delta: "+48.7%", accent: "brown", up: true },
+              ].map((c, i) => (
+                <div key={i} style={{
+                  background: C.warmWhite, border: `1px solid ${C.border}`, borderRadius: 14,
+                  padding: "16px 18px", boxShadow: "0 1px 3px rgba(40,46,42,0.04)",
+                  position: "relative", overflow: "hidden",
+                }}>
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: 3,
+                    background: c.accent === "olive" ? C.olive : c.accent === "brown" ? C.brown : C.mustard,
+                  }} />
+                  <div style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase",
+                    color: C.textDim, marginBottom: 6,
+                  }}>{c.label}</div>
+                  <div style={{
+                    fontSize: "clamp(24px, 2.5vw, 32px)", fontWeight: 900, lineHeight: 1,
+                    color: c.accent === "olive" ? C.olive : c.accent === "brown" ? C.brown : C.mustard,
+                  }}>{c.val}</div>
+                  <div style={{
+                    fontSize: 11, marginTop: 4, fontWeight: 500,
+                    color: c.up === true ? C.brown : c.up === false ? C.olive : C.textDim,
+                  }}>{c.delta}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Toggle */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 20, flexWrap: "wrap" }}>
+              {[
+                { key: "both", label: "SHOW MOVEMENT" },
+                { key: "25", label: "2025 ONLY" },
+                { key: "24", label: "2024 ONLY" },
+              ].map(t => (
+                <button key={t.key} onClick={() => setShowYear(t.key)} style={{
+                  padding: "6px 16px", borderRadius: 100,
+                  border: `1px solid ${showYear === t.key ? C.olive : C.border}`,
+                  background: showYear === t.key ? C.oliveLight : C.warmWhite,
+                  color: showYear === t.key ? C.olive : C.textDim,
+                  fontSize: 10, fontWeight: 700, letterSpacing: 2, fontFamily: "inherit",
+                  cursor: "pointer", transition: "all 0.25s", textTransform: "uppercase",
+                }}>{t.label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Chart */}
+          <div style={{ maxWidth: 920, margin: "0 auto", padding: "0 40px", position: "relative", zIndex: 1 }}>
+            <div style={{
+              background: C.warmWhite, border: `1px solid ${C.border}`, borderRadius: 14,
+              padding: "20px 16px 16px", boxShadow: "0 1px 3px rgba(40,46,42,0.04)",
+              position: "relative",
+            }}>
+              <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", overflow: "visible" }}>
+                {/* Grid */}
+                {[0, 3000, 6000, 9000, 12000].map(v => (
+                  <g key={`gx-${v}`}>
+                    <line x1={scaleX(v)} y1={PAD.top} x2={scaleX(v)} y2={PAD.top + ph} stroke={C.border} strokeWidth={1} />
+                    <text x={scaleX(v)} y={PAD.top + ph + 20} fill={C.textDim} fontSize={9} textAnchor="middle" fontFamily="Lexend">
+                      {v === 0 ? "0" : `${v / 1000}K`}
+                    </text>
+                  </g>
+                ))}
+                {[0, 100, 200, 300].map(v => (
+                  <g key={`gy-${v}`}>
+                    <line x1={PAD.left} y1={scaleY(v)} x2={PAD.left + pw} y2={scaleY(v)} stroke={C.border} strokeWidth={1} />
+                    <text x={PAD.left - 10} y={scaleY(v) + 3} fill={C.textDim} fontSize={9} textAnchor="end" fontFamily="Lexend">
+                      ${v}M
+                    </text>
+                  </g>
+                ))}
+
+                {/* Quadrant labels */}
+                <text x={PAD.left + pw * 0.75} y={PAD.top + 18} fill={C.border} fontSize={9} textAnchor="middle" fontWeight={700} fontFamily="Lexend" letterSpacing="2">
+                  HIGH VOLUME · HIGH STAKES
+                </text>
+                <text x={PAD.left + pw * 0.25} y={PAD.top + ph - 10} fill={C.border} fontSize={9} textAnchor="middle" fontWeight={700} fontFamily="Lexend" letterSpacing="2">
+                  LOW VOLUME · LOW STAKES
+                </text>
+
+                {/* Mid-lines */}
+                <line x1={scaleX(6000)} y1={PAD.top} x2={scaleX(6000)} y2={PAD.top + ph} stroke={C.oliveLight} strokeWidth={1.5} strokeDasharray="6,4" />
+                <line x1={PAD.left} y1={scaleY(60)} x2={PAD.left + pw} y2={scaleY(60)} stroke={C.oliveLight} strokeWidth={1.5} strokeDasharray="6,4" />
+
+                {/* Axis titles */}
+                <text x={PAD.left + pw / 2} y={H - 6} fill={C.textMid} fontSize={10} textAnchor="middle" fontFamily="Lexend" fontWeight={600} letterSpacing="2">
+                  REPORTED CASES →
+                </text>
+                <text x={14} y={PAD.top + ph / 2} fill={C.textMid} fontSize={10} textAnchor="middle" fontFamily="Lexend" fontWeight={600} letterSpacing="2" transform={`rotate(-90, 14, ${PAD.top + ph / 2})`}>
+                  AMOUNT LOST ($M) →
+                </text>
+
+                {/* Data */}
+                {raw.map((d, i) => {
+                  const x25 = scaleX(d.cases25);
+                  const y25 = scaleY(d.amount25);
+                  const x24 = scaleX(d.cases24);
+                  const y24 = scaleY(d.amount24);
+                  const cpv25 = costPerVictim(d, 25);
+                  const col = getThreatColor(cpv25);
+                  const isHov = hovered === i;
+                  const isNew = d.cases24 === 0;
+                  const r = Math.max(8, Math.min(22, Math.sqrt(d.amount25) * 2.2));
+
+                  return (
+                    <g key={d.short} style={{ opacity: animate ? 1 : 0, transition: `opacity 0.5s ease ${i * 0.07}s` }}>
+                      {/* Trail */}
+                      {showYear === "both" && !isNew && (
+                        <>
+                          <line x1={x24} y1={y24} x2={x25} y2={y25} stroke={col} strokeWidth={isHov ? 2.5 : 1.5} opacity={isHov ? 0.7 : 0.2} strokeDasharray={isHov ? "none" : "4,3"} />
+                          <circle cx={x25} cy={y25} r={3.5} fill={col} opacity={isHov ? 0.8 : 0.35} />
+                        </>
+                      )}
+
+                      {/* 2024 ghost */}
+                      {(showYear === "both" || showYear === "24") && !isNew && (
+                        <circle cx={x24} cy={y24} r={showYear === "24" ? r * 0.9 : 5}
+                          fill={showYear === "24" ? col : "none"} stroke={col} strokeWidth={1.5}
+                          opacity={showYear === "24" ? 0.5 : (isHov ? 0.5 : 0.15)}
+                          strokeDasharray={showYear === "24" ? "none" : "3,3"} />
+                      )}
+
+                      {/* 2025 dot */}
+                      {(showYear === "both" || showYear === "25") && (
+                        <g onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)} style={{ cursor: "pointer" }}>
+                          {isHov && <circle cx={x25} cy={y25} r={r + 10} fill={col} opacity={0.06} />}
+                          <circle cx={x25} cy={y25} r={r + 2} fill="none" stroke={col} strokeWidth={isHov ? 2 : 0.8} opacity={isHov ? 0.5 : 0.15} />
+                          <circle cx={x25} cy={y25} r={r} fill={col} opacity={isHov ? 0.85 : 0.45} style={{ transition: "opacity 0.2s" }} />
+                          <text x={x25} y={y25 + (r < 12 ? -r - 7 : 4)} fill={isHov ? C.charcoal : C.textMid} fontSize={isHov ? 11 : 9} textAnchor="middle" fontFamily="Lexend" fontWeight={isHov ? 700 : 500}>
+                            {d.short}
+                          </text>
+                        </g>
+                      )}
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* Tooltip */}
+              {hovered !== null && (
+                <div style={{
+                  position: "absolute", top: 32, right: 32,
+                  background: C.warmWhite, border: `1px solid ${C.border}`, borderRadius: 14,
+                  padding: "18px 22px", width: 248,
+                  boxShadow: "0 4px 16px rgba(78,90,43,0.08)", zIndex: 10,
+                  overflow: "hidden",
+                }}>
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: 3,
+                    background: getThreatColor(costPerVictim(raw[hovered], 25)),
+                  }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                    <span style={{ fontSize: 24 }}>{raw[hovered].icon}</span>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: C.charcoal }}>{raw[hovered].name}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: C.textDim }}>SCAM TYPE</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px" }}>
+                    {[
+                      { label: "LOST 2025", val: `$${raw[hovered].amount25}M` },
+                      { label: "LOST 2024", val: raw[hovered].amount24 > 0 ? `$${raw[hovered].amount24}M` : "—" },
+                      { label: "CASES 2025", val: raw[hovered].cases25.toLocaleString() },
+                      { label: "CASES 2024", val: raw[hovered].cases24 > 0 ? raw[hovered].cases24.toLocaleString() : "—" },
+                    ].map((it, j) => (
+                      <div key={j}>
+                        <div style={{ fontSize: 9, color: C.textDim, fontWeight: 700, letterSpacing: 1 }}>{it.label}</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: C.charcoal }}>{it.val}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12 }}>
+                    <div style={{ fontSize: 9, color: C.textDim, fontWeight: 700, letterSpacing: 1 }}>AVG LOSS PER VICTIM</div>
+                    <div style={{
+                      fontSize: "clamp(22px, 2vw, 28px)", fontWeight: 900, lineHeight: 1,
+                      color: getThreatColor(costPerVictim(raw[hovered], 25)),
+                    }}>
+                      ${(costPerVictim(raw[hovered], 25) / 1000).toFixed(1)}K
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Legend */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, paddingLeft: 4, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: C.textDim }}>COST PER VICTIM</span>
+              <div style={{ flex: 1, maxWidth: 240, height: 6, borderRadius: 3, background: `linear-gradient(90deg, ${threatColors.join(", ")})` }} />
+              <div style={{ display: "flex", gap: 20, fontSize: 10, color: C.textDim, fontWeight: 500 }}>
+                <span>$0</span><span>$72K+</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Insight cards */}
+          <div style={{ maxWidth: 920, margin: "28px auto 0", padding: "0 40px 40px", position: "relative", zIndex: 1 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", color: C.textDim, marginBottom: 14 }}>
+              Notable Movements 2024 → 2025
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
+              {[
+                { icon: "🏛️", title: "Gov't Impersonation", tag: "ESCALATING", accent: "brown",
+                  text: "Cases doubled (+124%), losses surged +60%. Victims lose $72K on average — the highest per-victim cost." },
+                { icon: "📞", title: "Fake Friend Calls", tag: "DECLINING", accent: "olive",
+                  text: "Cases fell −63%, losses dropped −65%. Awareness campaigns appear to be working." },
+                { icon: "🛒", title: "E-commerce", tag: "SHIFTING", accent: "mustard",
+                  text: "Cases dropped −43% but remained the highest-volume scam by case count." },
+                { icon: "🛡️", title: "Insurance Scams", tag: "EMERGING", accent: "brown",
+                  text: "New category in 2025 with 1,003 cases and $25.2M in losses." },
+              ].map((s, i) => (
+                <div key={i} style={{
+                  background: C.warmWhite, border: `1px solid ${C.border}`, borderRadius: 14,
+                  padding: "18px 20px", boxShadow: "0 1px 3px rgba(40,46,42,0.04)",
+                  position: "relative", overflow: "hidden",
+                }}>
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: 3,
+                    background: s.accent === "olive" ? C.olive : s.accent === "brown" ? C.brown : C.mustard,
+                  }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <span style={{ fontSize: 18 }}>{s.icon}</span>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.charcoal }}>{s.title}</div>
+                      <span style={{
+                        display: "inline-block", padding: "3px 10px", borderRadius: 100,
+                        fontSize: 8, fontWeight: 700, letterSpacing: 2,
+                        background: s.accent === "olive" ? C.oliveLight : s.accent === "brown" ? C.brownLight : C.mustardLight,
+                        color: s.accent === "olive" ? C.olive : s.accent === "brown" ? C.brown : C.goldenBrown,
+                        border: s.accent === "mustard" ? "1px solid rgba(225,184,59,0.3)" : "none",
+                      }}>{s.tag}</span>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: C.textMid, lineHeight: 1.6, fontWeight: 400 }}>{s.text}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: 28, textAlign: "center", fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: C.textDim }}>
+              Source: Singapore Police Force · Amounts may not tally due to rounding
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<ScamRadar />);
+  </script>
+</body>
+</html>
