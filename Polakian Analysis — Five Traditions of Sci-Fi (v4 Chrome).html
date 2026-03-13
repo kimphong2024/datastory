@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polakian Analysis — Five Traditions of Sci-Fi (v4)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --olive:#4E5A2B;--brown:#AC7222;--mustard:#E1B83B;--goldenBrown:#D3963E;
+  --charcoal:#282E2A;--textMid:#6B7264;--textDim:#9A9A8A;
+  --warmWhite:#FFFEF9;--cream:#FAF7F2;--oliveLight:#F5F6F0;
+  --brownLight:#FBF5EC;--mustardLight:#FEF9E7;
+  --border:#E0E2D8;--borderLight:#EDEEE8;--watchBlue:#5B8A9A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Lexend',sans-serif;background:var(--warmWhite);color:var(--charcoal);overflow-x:hidden}
+#p5bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#p5bg canvas{display:block;width:100%!important;height:100%!important}
+.progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#4E5A2B,#AC7222,#E1B83B);z-index:200;width:0;transition:width 0.12s}
+.toggle{position:fixed;top:20px;right:20px;z-index:100;display:flex;background:rgba(40,46,42,0.92);border-radius:100px;padding:3px;backdrop-filter:blur(14px);box-shadow:0 4px 24px rgba(0,0,0,0.2)}
+.tbtn{padding:9px 22px;border:none;border-radius:100px;font-family:'Lexend';font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);background:transparent;color:#888}
+.tbtn.on{background:var(--olive);color:var(--warmWhite);box-shadow:0 2px 12px rgba(78,90,43,0.4)}
+.tbtn:hover:not(.on){color:var(--mustard)}
+.wrap{max-width:1440px;margin:0 auto;padding:60px 40px;position:relative;z-index:1}
+
+/* Entrance animations */
+.reveal{opacity:0;transform:translateY(50px);transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-scale{opacity:0;transform:scale(0.88);transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1),transform 0.6s cubic-bezier(0.16,1,0.3,1)}
+.reveal-scale.vis{opacity:1;transform:scale(1)}
+
+/* Story Mode */
+.story{display:block}.story.off{display:none}
+.act{min-height:88vh;display:flex;align-items:center;justify-content:center;padding:60px 20px}
+.act-inner{max-width:800px;width:100%;position:relative}
+.act-num{font-size:140px;font-weight:900;line-height:1;letter-spacing:-6px;opacity:0.04;position:absolute;top:-40px;left:-30px;user-select:none}
+.act-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.act-h{font-size:clamp(34px,4.2vw,58px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:22px}
+.act-p{font-size:clamp(15px,1.2vw,18px);font-weight:300;color:var(--textMid);line-height:1.85;margin-bottom:24px}
+.act-p strong{color:var(--charcoal);font-weight:500}
+.pill{display:inline-flex;align-items:baseline;gap:8px;padding:12px 22px;background:var(--mustardLight);border:1px solid rgba(225,184,59,0.35);border-radius:14px;margin:6px 4px}
+.pill-n{font-size:clamp(26px,2.8vw,44px);font-weight:900}
+.pill-l{font-size:12px;font-weight:400;color:var(--textDim)}
+.corpus{display:inline-block;margin-top:14px;padding:5px 14px;background:var(--mustardLight);border:1px solid rgba(225,184,59,0.3);border-radius:100px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--goldenBrown)}
+.divider{width:50px;height:3px;background:var(--olive);border-radius:2px;margin:8px 0 20px}
+@keyframes pulse{0%,100%{opacity:0.35}50%{opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.scroll-cue{margin-top:44px;font-size:10px;color:var(--textDim);letter-spacing:3px;text-transform:uppercase;animation:pulse 2.5s ease-in-out infinite}
+.scroll-cue span{display:inline-block;animation:bob 2.5s ease-in-out infinite}
+
+/* Scanlines overlay */
+.scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(78,90,43,0.015) 2px,rgba(78,90,43,0.015) 4px);mix-blend-mode:multiply}
+
+/* Glitch title */
+.glitch-wrap{position:relative;display:inline-block}
+@keyframes glitchR{0%,100%{clip-path:inset(0 0 0 0);opacity:0}50%{clip-path:inset(20% 0 40% 0);opacity:0.6}}
+@keyframes glitchB{0%,100%{clip-path:inset(0 0 0 0);opacity:0}50%{clip-path:inset(50% 0 10% 0);opacity:0.5}}
+.glitch-r,.glitch-b{position:absolute;top:0;left:0;width:100%;height:100%}
+.glitch-r{color:var(--mustard);animation:glitchR 0.12s ease-in-out}
+.glitch-b{color:var(--watchBlue);animation:glitchB 0.12s ease-in-out}
+
+/* Transmission label */
+.tx-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;font-family:'Courier New',monospace}
+
+/* Insight box */
+.insight{margin:20px 0;padding:16px 22px;border-radius:0 12px 12px 0;font-size:13px;font-weight:400;line-height:1.8;font-style:italic;color:var(--charcoal)}
+.insight-olive{background:rgba(78,90,43,0.05);border-left:3px solid var(--olive)}
+.insight-brown{background:rgba(172,114,34,0.05);border-left:3px solid var(--brown)}
+.insight-golden{background:rgba(211,150,62,0.05);border-left:3px solid var(--goldenBrown)}
+.insight-blue{background:rgba(91,138,154,0.05);border-left:3px solid var(--watchBlue)}
+
+/* Radar ping */
+@keyframes radarPing{0%{transform:scale(0.3);opacity:0}30%{opacity:0.4}100%{transform:scale(1.8);opacity:0}}
+.radar{position:absolute;width:300px;height:300px;border-radius:50%;pointer-events:none}
+.radar-ring{position:absolute;inset:0;border-radius:50%;border:1px solid var(--olive)}
+.radar-ring-1{animation:radarPing 3s ease-out 0s infinite}
+.radar-ring-2{animation:radarPing 3s ease-out 1s infinite}
+
+/* Holo border */
+@keyframes holoSweep{0%{left:-20%}100%{left:120%}}
+.holo-top{position:absolute;top:-1px;left:0;right:0;height:1px}
+.holo-bot{position:absolute;bottom:-1px;left:0;right:0;height:1px}
+.holo-sweep{position:absolute;top:0;left:0;width:15%;height:100%;animation:holoSweep 6s ease-in-out infinite;pointer-events:none}
+
+/* Data stream */
+@keyframes dataScroll{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+.data-stream{position:absolute;top:0;right:-60px;width:50px;height:100%;overflow:hidden;opacity:0.06;pointer-events:none;font-family:monospace;font-size:8px;line-height:1.4;word-break:break-all;white-space:pre-wrap}
+.data-stream-inner{animation:dataScroll 20s linear infinite}
+
+/* Transition canvas */
+#txCanvas{position:fixed;inset:0;z-index:50;pointer-events:none}
+#txCanvas canvas{display:block;width:100%!important;height:100%!important}
+
+/* Hypothesis box */
+.hypo{margin:20px 0;padding:18px 24px;border-radius:14px;font-size:13px;line-height:1.85;position:relative;overflow:hidden}
+.hypo::before{content:'HYPOTHESIS';position:absolute;top:8px;right:12px;font-size:8px;font-weight:700;letter-spacing:3px;opacity:0.3;font-family:'Courier New',monospace}
+.hypo-olive{background:rgba(78,90,43,0.06);border:1px solid rgba(78,90,43,0.15)}
+.hypo-brown{background:rgba(172,114,34,0.06);border:1px solid rgba(172,114,34,0.15)}
+.hypo-golden{background:rgba(211,150,62,0.06);border:1px solid rgba(211,150,62,0.15)}
+.hypo-blue{background:rgba(91,138,154,0.06);border:1px solid rgba(91,138,154,0.15)}
+.hypo strong{font-weight:600}
+.hypo em.counter{display:block;margin-top:10px;font-size:12px;opacity:0.7;border-top:1px dashed rgba(0,0,0,0.1);padding-top:8px}
+
+/* Section divider */
+.act-divider{width:100%;height:120px;display:flex;align-items:center;justify-content:center;opacity:0.4;font-family:'Courier New',monospace;font-size:9px;letter-spacing:6px;text-transform:uppercase;color:var(--textDim)}
+
+/* Data Mode */
+.data{display:none}.data.on{display:block}
+.hdr{margin-bottom:56px}
+.hdr .lab{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--olive);margin-bottom:12px}
+.hdr h1{font-size:clamp(38px,4.8vw,64px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:14px}
+.hdr .sub{font-size:clamp(14px,1.1vw,17px);font-weight:300;color:var(--textMid);max-width:750px;line-height:1.7}
+.legend{display:flex;gap:28px;margin-bottom:48px;padding:18px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.legend-i{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.legend-d{width:12px;height:12px;border-radius:50%}
+.legend-n{font-weight:300;color:var(--textDim);font-size:11px}
+.stitle{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--olive);margin-bottom:20px;padding-bottom:6px;border-bottom:2px solid var(--border)}
+.card{background:var(--warmWhite);border-radius:14px;padding:24px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(40,46,42,0.04);transition:all 0.3s cubic-bezier(0.16,1,0.3,1)}
+.card:hover{border-color:var(--olive);box-shadow:0 6px 24px rgba(78,90,43,0.1);transform:translateY(-3px)}
+.card-lg{padding:36px}
+.sg{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:48px}
+.sc{border-top:3px solid var(--olive)}
+.sc.jp{border-top-color:var(--brown)}.sc.cn{border-top-color:var(--mustard)}.sc.su{border-top-color:var(--watchBlue)}.sc.kr{border-top-color:var(--goldenBrown)}
+.sl{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--textDim);margin-bottom:6px}
+.sv{font-size:clamp(26px,3vw,42px);font-weight:900;letter-spacing:-1px;line-height:1;margin-bottom:3px}
+.ss{font-size:12px;font-weight:400;color:var(--textDim)}
+.bg{display:flex;flex-direction:column;gap:6px}
+.br{display:flex;align-items:center;gap:6px}
+.bl{font-size:9px;font-weight:700;width:18px;text-align:right;color:var(--textDim)}
+.bt{flex:1;height:14px;background:var(--oliveLight);border-radius:3px;overflow:hidden}
+.bf{height:100%;border-radius:3px;width:0;transition:width 1.4s cubic-bezier(0.16,1,0.3,1)}
+.bv{font-size:10px;font-weight:700;width:42px}
+.ct{width:100%;border-collapse:collapse;margin-bottom:48px;font-size:12px}
+.ct th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--textDim);border-bottom:2px solid var(--border)}
+.ct td{padding:8px 12px;border-bottom:1px solid var(--borderLight);transition:background 0.2s}
+.ct tr:hover td{background:var(--oliveLight)}
+.ct .m{font-weight:500}.ct .v{font-weight:600;text-align:center;font-size:11px}
+.dg{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:48px}
+.dc h3{font-size:13px;font-weight:700;margin-bottom:14px}
+.dgrp{display:flex;flex-direction:column;gap:10px}
+.dlbl{font-size:10px;font-weight:700;color:var(--textDim);text-transform:uppercase;letter-spacing:2px;margin-bottom:2px}
+.dbars{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--borderLight)}
+.dbars div{height:100%}
+.dleg{display:flex;justify-content:space-between;font-size:9px;color:var(--textDim);margin-top:1px}
+.sigc h3{font-size:14px;font-weight:700;margin-bottom:8px}
+.sigc p{font-size:13px;font-weight:300;color:var(--textMid);line-height:1.8}
+.sigt{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.stags{margin-top:8px;font-size:10px;color:var(--textDim);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.mnote{font-size:12px;color:var(--textMid);line-height:1.6;margin-bottom:48px;padding:16px 20px;background:var(--brownLight);border-left:3px solid var(--brown);border-radius:0 14px 14px 0}
+.mnote strong{color:var(--brown)}
+.footer{text-align:center;padding:20px;background:var(--cream);border-radius:14px;font-size:12px;color:var(--textDim)}
+.fbar{height:3px;background:linear-gradient(90deg,#4E5A2B,#AC7222,#E1B83B);border-radius:2px;margin-bottom:16px}
+@media(max-width:1000px){.sg{grid-template-columns:repeat(2,1fr)}.dg{grid-template-columns:1fr}.wrap{padding:30px 20px}.toggle{top:10px;right:10px}}
+@media(max-width:600px){.sg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="p5bg"></div>
+<div id="txCanvas"></div>
+<div class="progress" id="pb"></div>
+<div class="toggle">
+  <button class="tbtn on" id="sb" onclick="sw('story')">Story</button>
+  <button class="tbtn" id="db" onclick="sw('data')">Data</button>
+</div>
+
+<!-- Scanlines overlay -->
+<div class="scanlines"></div>
+
+<!-- ════════ STORY ════════ -->
+<div class="story" id="SM"><div class="wrap">
+
+<!-- ACT 0: TITLE -->
+<div class="act"><div class="act-inner reveal" style="text-align:center">
+<div class="act-h" style="color:var(--olive)">Five Traditions of<br>Sci-Fi Futures</div>
+<div style="width:60px;height:3px;background:linear-gradient(90deg,var(--olive),var(--mustard));border-radius:2px;margin:16px auto 24px"></div>
+<div class="act-p">Every civilisation tells stories about tomorrow. But the futures we imagine are not neutral &#8212; they are confessions. They reveal what we fear, what we believe we deserve, and whether we think we can do anything about it.</div>
+<div class="act-p">We analysed 6,877 works of science fiction from five cultural traditions. What we found was not a spectrum but a topology &#8212; five fundamentally different architectures of hope and dread.</div>
+<div class="corpus">6,877 works &#183; v4 &#183; LLM-analysed</div>
+<div class="scroll-cue"><span>Scroll to explore &#8595;</span></div>
+</div></div>
+
+<!-- ACT 1: THE FRAMEWORK -->
+<div class="act"><div class="act-inner reveal">
+<div class="act-num" style="color:var(--olive)">01</div>
+<div class="tx-label" style="color:var(--olive)">//&nbsp;TRANSMISSION_001 &#8212; THE FRAMEWORK</div>
+<div class="act-h" style="color:var(--charcoal)">Fred Polak&#8217;s<br>Image of the Future</div>
+<div class="act-p">In 1955, Dutch sociologist Fred Polak proposed something radical: that the health of a civilisation can be diagnosed by the stories it tells about the future. Not by their accuracy &#8212; but by their emotional architecture.</div>
+<div class="act-p">His framework maps two axes. <strong>Essence</strong> asks: is tomorrow better or worse than today? This is the mood of a culture&#8217;s imagination &#8212; its default emotional posture toward what comes next. <strong>Influence</strong> asks: can humans shape the future, or are we passengers? This is the agency question &#8212; whether a culture believes its own stories of resistance and transformation.</div>
+<div class="insight insight-olive">Together these axes create four quadrants &#8212; four fundamentally different stances a civilisation can take toward its own survival. We applied this framework to 6,877 works of science fiction across five cultural traditions. The results are not what you&#8217;d expect.</div>
+<div class="data-stream"><div class="data-stream-inner" style="color:var(--olive)">0 1 0 0 1 0 1 1 P O L A K E S S E N C E I N F L U E N C E T R A N S F O R M A T I V E H E R O I C 0 x F F 0 1 1 0 1 0</div></div>
+</div></div>
+
+<div class="act-divider" data-tx="warp">&#9608;&#9608;&#9608; SIGNAL TRANSITION &#9608;&#9608;&#9608;</div>
+
+<!-- ACT 2: WESTERN -->
+<div class="act"><div class="act-inner reveal">
+<div class="act-num" style="color:var(--olive)">02</div>
+<div class="tx-label" style="color:var(--olive)">//&nbsp;TRANSMISSION_002 &#8212; THE DOMINANT VOICE</div>
+<div class="act-h" style="color:var(--olive)">Western Tradition</div>
+<div class="act-p">5,350 works. Nearly 78% of the global corpus. When we say &#8220;sci-fi,&#8221; we almost always mean Western sci-fi &#8212; and that&#8217;s already the first finding. The genre&#8217;s centre of gravity is Anglo-American, and its gravitational pull has shaped every other tradition&#8217;s self-definition.</div>
+<div class="act-p">Western sci-fi is moderately pessimistic (Essence: -0.186) but believes in human agency (Influence: +0.237). This is the tradition of the reluctant hero &#8212; things are bad, probably getting worse, but one individual can make a difference. It is the Hero&#8217;s Journey on repeat: <em>Alien</em>, <em>The Matrix</em>, <em>Interstellar</em>, <em>The Hunger Games</em>.</div>
+<div class="insight insight-olive">The Western signature is a kind of productive anxiety. The future is threatening enough to generate narrative tension, but agency is high enough to sustain the fantasy that one person can save the world. This is not accidental &#8212; it maps precisely onto the liberal-individualist political imagination.</div>
+<div class="hypo hypo-olive reveal">
+<strong>Why does the data look this way?</strong> Western sci-fi inherits Enlightenment individualism fused with the American frontier myth &#8212; the pioneer who transgresses boundaries and transforms wilderness into civilisation. The Promethean tech stance captures the belief that unbounded technological ambition, despite moral danger, is both inevitable and ultimately salvific. Heroic Struggle dominates because the genre assumes society is fundamentally corruptible but redeemable by exceptional agents.
+<em class="counter">Counter-reading: The persistence of Heroic Struggle as the dominant frame might signal not optimism about agency but deep anxiety about institutional failure. The hero must fight precisely because ordinary social structures are assumed corrupt beyond collective repair.</em>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+<div class="pill reveal-scale" style="position:relative;overflow:hidden"><div class="pill-n" style="color:var(--olive)">-0.186</div><div class="pill-l">Essence</div></div>
+<div class="pill reveal-scale" style="position:relative;overflow:hidden"><div class="pill-n" style="color:var(--olive)">+0.237</div><div class="pill-l">Influence</div></div>
+<div class="pill reveal-scale" style="position:relative;overflow:hidden"><div class="pill-n" style="color:var(--olive)">49.5%</div><div class="pill-l">Heroic Struggle</div></div>
+</div>
+<div class="data-stream"><div class="data-stream-inner" style="color:var(--olive)">H E R O J O U R N E Y F R O N T I E R 0 1 0 0 1 1 A L I E N M A T R I X</div></div>
+</div></div>
+
+<div class="act-divider" data-tx="glitch">&#9608;&#9608;&#9608; SIGNAL TRANSITION &#9608;&#9608;&#9608;</div>
+
+<!-- ACT 3: JAPANESE -->
+<div class="act"><div class="act-inner reveal">
+<div class="act-num" style="color:var(--brown)">03</div>
+<div class="tx-label" style="color:var(--brown)">//&nbsp;TRANSMISSION_003 &#8212; THE HIGHEST AGENCY</div>
+<div class="act-h" style="color:var(--brown)">Japanese Tradition</div>
+<div class="act-p">1,196 works. Japan&#8217;s sci-fi tradition is the least pessimistic in the dataset &#8212; and this should surprise anyone who thinks of anime as relentlessly dark. The darkness is there, but it comes with a counterweight that no other tradition matches: the highest Providential score (9.5%) of any culture.</div>
+<div class="act-p">Where Western sci-fi puts a lone hero at the centre, Japanese sci-fi puts the group. The agency is collective. In <em>Neon Genesis Evangelion</em>, the hero is psychologically shattered &#8212; the mecha works anyway. In <em>Ghost in the Shell</em>, identity dissolves into networks. In <em>Akira</em>, the individual transcends but the city survives through collective endurance.</div>
+<div class="insight insight-brown">Japanese sci-fi encodes a fundamentally different theory of survival: the individual is fragile, the technology is ambivalent, but the collective can absorb what would destroy any single person. This is Mecha as philosophy &#8212; the body is weak, so we build shells. Not for conquest, but for persistence.</div>
+<div class="hypo hypo-brown reveal">
+<strong>Why does the data look this way?</strong> Post-war transformation through redemptive duty: the trauma of absolute defeat (1945) and atomic destruction created a cultural contract wherein sacrifice and collective obligation toward technological futurity become the path to civilisational honour. The high Providential score reflects active faith that technology &#8212; managed by a cohesive collective &#8212; can restore purpose. Delegation of agency to AI/Tech mirrors <em>wa</em> (harmony): machines as extensions of group will, not individual ambition.
+<em class="counter">Counter-reading: The delegation to AI/Tech agency could indicate not cultural values but a retreat from human responsibility &#8212; a projection of the desire for redemption onto machines precisely because human-centred agency was discredited by the catastrophe of imperial militarism.</em>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--brown)">-0.165</div><div class="pill-l">Essence (least dark)</div></div>
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--brown)">+0.299</div><div class="pill-l">Influence</div></div>
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--brown)">9.5%</div><div class="pill-l">Providential</div></div>
+</div>
+<div class="data-stream"><div class="data-stream-inner" style="color:var(--brown)">M E C H A C O L L E C T I V E 0 1 1 E V A N G E L I O N G H O S T</div></div>
+</div></div>
+
+<div class="act-divider" data-tx="burst">&#9608;&#9608;&#9608; SIGNAL TRANSITION &#9608;&#9608;&#9608;</div>
+
+<!-- ACT 4: CHINESE -->
+<div class="act"><div class="act-inner reveal">
+<div class="act-num" style="color:var(--mustard)">04</div>
+<div class="tx-label" style="color:var(--goldenBrown)">//&nbsp;TRANSMISSION_004 &#8212; THE FRONTIER BUILDERS</div>
+<div class="act-h" style="color:var(--goldenBrown)">Chinese Tradition</div>
+<div class="act-p">153 works &#8212; a small but rapidly growing corpus that tells us something extraordinary. Chinese sci-fi is the only tradition where the dominant myth is not the Hero&#8217;s Journey but <strong>The Frontier</strong>. This is civilisational ambition encoded as narrative.</div>
+<div class="act-p">Liu Cixin&#8217;s <em>Three-Body Problem</em> is the flagship, but the pattern runs deeper. Chinese sci-fi imagines futures where the challenge is not personal but planetary &#8212; and the response is not individual heroism but infrastructural mobilisation. Technology here is neither salvation nor damnation; it is a tool of nation-scale construction.</div>
+<div class="insight insight-golden">The Chinese tradition inverts the Western formula: where Hollywood asks &#8220;who will save us?&#8221;, Chinese sci-fi asks &#8220;what will we build?&#8221; This is not optimism &#8212; the Essence score is darker than the Western average. It&#8217;s something more interesting: a pessimism that still believes in engineering its way out.</div>
+<div class="hypo hypo-golden reveal">
+<strong>Why does the data look this way?</strong> The Frontier myth reflects a continuous historical identity rooted in civilisational expansion &#8212; from Han Dynasty territorial absorption to the contemporary Belt and Road imagination. Technology appears as a tool of state-coordinated modernisation rather than individual transgression. The Individual Hero agency is paradoxical: exceptional figures serve civilisational continuity rather than disrupting it, marking a fundamental divergence from the Western adversarial stance. Confucian order-making &#8212; conquering territory and integrating it into a coherent project &#8212; replaces the American lawless frontier.
+<em class="counter">Counter-reading: The retreat into Frontier mythology might represent not cultural confidence but anxiety. Chinese sci-fi writers invoke expansion myths precisely when contemporary society faces doubts about whether technology can sustain centralised governance through accelerating change.</em>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--goldenBrown)">-0.221</div><div class="pill-l">Essence</div></div>
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--goldenBrown)">+0.269</div><div class="pill-l">Influence</div></div>
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--goldenBrown)">57.5%</div><div class="pill-l">Heroic Struggle</div></div>
+</div>
+<div class="data-stream"><div class="data-stream-inner" style="color:var(--goldenBrown)">F R O N T I E R B U I L D 0 1 0 T H R E E B O D Y C I X I N</div></div>
+</div></div>
+
+<div class="act-divider" data-tx="warp">&#9608;&#9608;&#9608; SIGNAL TRANSITION &#9608;&#9608;&#9608;</div>
+
+<!-- ACT 5: SOVIET -->
+<div class="act"><div class="act-inner reveal">
+<div class="act-num" style="color:var(--watchBlue)">05</div>
+<div class="tx-label" style="color:var(--watchBlue)">//&nbsp;TRANSMISSION_005 &#8212; THE SYSTEM SPEAKS</div>
+<div class="act-h" style="color:var(--watchBlue)">Soviet Tradition</div>
+<div class="act-p">75 works. The smallest tradition &#8212; and the most philosophically distinct. Soviet sci-fi has the lowest Influence score in the dataset (+0.145), meaning it believes less than any other tradition that humans can shape the future. It is also the only tradition where the dominant Future Vision is <strong>Dystopian</strong>, not Ambiguous.</div>
+<div class="act-p">This is not hopelessness. It&#8217;s something more subtle: a literature built on the premise that futures emerge from systems, not from heroes. Tarkovsky&#8217;s <em>Stalker</em> doesn&#8217;t solve the Zone &#8212; it contemplates it. The Strugatsky brothers&#8217; <em>Roadside Picnic</em> imagines alien artefacts as cosmic indifference. Lem&#8217;s <em>Solaris</em> gives us an ocean that thinks but cannot be understood.</div>
+<div class="insight insight-blue">Soviet sci-fi is the tradition of systemic determinism &#8212; the conviction that the universe operates on logics that dwarf individual will. When it is hopeful, it&#8217;s because the system might deliver something good. When it&#8217;s bleak, it&#8217;s because the system doesn&#8217;t care. Either way, you are not the protagonist.</div>
+<div class="hypo hypo-blue reveal">
+<strong>Why does the data look this way?</strong> Soviet/Russian sci-fi inherits a dual philosophical burden: Russian Orthodox fatalism &#8212; the conviction that divine or cosmic will is inscrutable &#8212; overlaid with Marxist historical materialism, which insists that systemic forces, not individuals, drive change. The collapse of Soviet ideology didn&#8217;t liberate the imagination; it replaced one form of determinism with another. Post-Soviet economic devastation confirmed the pattern: futures arrive through forces beyond individual control. The Neutral tech stance reflects technology as just another domain of systemic entrapment.
+<em class="counter">Counter-reading: The prominence of Dystopia and undetermined agency might not signal defeatism but intellectual honesty &#8212; a refusal of the comforting Western fantasy that one person can change the world. Russian sci-fi may be the most epistemologically rigorous tradition: it insists on the limits of human comprehension.</em>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--watchBlue)">+0.145</div><div class="pill-l">Influence (lowest)</div></div>
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--watchBlue)">-0.282</div><div class="pill-l">Essence (darkest)</div></div>
+</div>
+<div class="data-stream"><div class="data-stream-inner" style="color:var(--watchBlue)">S Y S T E M 0 1 S T A L K E R S O L A R I S Z O N E L E M</div></div>
+</div></div>
+
+<div class="act-divider" data-tx="glitch">&#9608;&#9608;&#9608; SIGNAL TRANSITION &#9608;&#9608;&#9608;</div>
+
+<!-- ACT 6: KOREAN -->
+<div class="act"><div class="act-inner reveal">
+<div class="act-num" style="color:var(--goldenBrown)">06</div>
+<div class="tx-label" style="color:var(--goldenBrown)">//&nbsp;TRANSMISSION_006 &#8212; THE TRAP</div>
+<div class="act-h" style="color:var(--goldenBrown)">Korean Tradition</div>
+<div class="act-p">103 works. Korean sci-fi carries the most striking single statistic in the entire dataset: <strong>39.8% Tragic Determinism</strong> &#8212; nearly double the Western rate. This is a literature of entrapment. The future is dark, and you cannot change it.</div>
+<div class="act-p">Think <em>Snowpiercer</em>, where revolution merely reproduces the system. Think <em>The Host</em>, where the monster is really institutional negligence. Think <em>Parasite</em> &#8212; not technically sci-fi, but encoding the same logic that pervades Korean speculative fiction: the architecture of inequality is load-bearing. You cannot remove it without collapsing the structure.</div>
+<div class="insight insight-golden">Korean sci-fi is the tradition that most directly confronts social class as a technology of control. Where Western sci-fi externalises its villains (aliens, AI, corporations), Korean sci-fi locates the enemy in the geometry of the system itself. The lowest Transformative score (5.8%) confirms it: this tradition has largely given up on utopia.</div>
+<div class="hypo hypo-golden reveal">
+<strong>Why does the data look this way?</strong> The 1997 IMF crisis is the wound that organises Korean speculative fiction. It shattered the myth of Confucian capitalism &#8212; that shared sacrifice yields shared prosperity &#8212; and revealed a generation trapped in hierarchical structures designed for their exploitation. Confucian social hierarchy, historically legitimising order, was weaponised by neoliberal capital: traditional duty-based obligation meets contemporary precarity, producing narratives where escape is simultaneously necessary and impossible. The Hybrid Agency captures this precisely &#8212; characters have will but operate within predetermined constraints.
+<em class="counter">Counter-reading: The Tragic Determinism reading might romanticise precarity. Korean sci-fi&#8217;s emphasis on entrapment could mask something more radical &#8212; that the genre itself has been captured by the systems it critiques, rendering the speculative imagination colonised by the very logic of inequality it depicts.</em>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--goldenBrown)">39.8%</div><div class="pill-l">Tragic Determinism</div></div>
+<div class="pill reveal-scale"><div class="pill-n" style="color:var(--goldenBrown)">5.8%</div><div class="pill-l">Transformative (lowest)</div></div>
+</div>
+<div class="data-stream"><div class="data-stream-inner" style="color:var(--goldenBrown)">T R A P C L A S S 0 1 S N O W P I E R C E R P A R A S I T E</div></div>
+</div></div>
+
+<div class="act-divider" data-tx="burst">&#9608;&#9608;&#9608; SIGNAL TRANSITION &#9608;&#9608;&#9608;</div>
+
+<!-- ACT 7: SYNTHESIS -->
+<div class="act"><div class="act-inner reveal">
+<div class="act-num" style="color:var(--charcoal)">07</div>
+<div class="tx-label" style="color:var(--olive)">//&nbsp;TRANSMISSION_007 &#8212; WHAT THE MAP REVEALS</div>
+<div class="act-h" style="color:var(--charcoal)">Five Ways to<br>Fear Tomorrow</div>
+<div class="act-p">The five traditions don&#8217;t form a hierarchy. They form a constellation &#8212; each illuminating a different failure mode of the human imagination. The West fears losing the individual. Japan fears losing the collective. China fears losing momentum. Russia fears the indifference of the cosmos. Korea fears the permanence of inequality.</div>
+<div class="act-p">What they share is more revealing than what divides them: <strong>every tradition is net-pessimistic</strong>. Not a single culture&#8217;s sci-fi imagines the future as, on balance, better than the present. The differences are in the flavour of that pessimism and the agency they grant their characters to fight it.</div>
+<div class="insight insight-olive">This is Polak&#8217;s deepest insight made empirical: the stories we tell about tomorrow are not predictions. They are diagnoses. And right now, across five distinct civilisations, the diagnosis is the same &#8212; the future is a problem. The only question is whether you&#8217;re the one solving it, surviving it, or trapped in it.</div>
+</div></div>
+
+<!-- ACT 8: CTA -->
+<div class="act"><div class="act-inner reveal" style="text-align:center">
+<div class="act-h" style="color:var(--charcoal)">Explore the Data</div>
+<div class="act-p">Switch to Data Mode for the complete Polakian analysis &#8212; quadrant distributions, dialectical axes, tradition signatures, and the full comparison table.</div>
+<button class="tbtn" style="font-size:14px;padding:16px 38px;background:var(--olive);color:var(--warmWhite);box-shadow:0 4px 24px rgba(78,90,43,0.4);margin-top:16px;font-weight:700;letter-spacing:2px" onclick="sw('data')">ENTER DATA MODE &#8594;</button>
+</div></div>
+
+</div></div>
+
+<!-- ════════ DATA ════════ -->
+<div class="data" id="DM"><div class="wrap">
+
+<div class="hdr reveal"><div class="lab">Polakian Comparative Analysis</div><h1>Five Traditions of<br>Sci-Fi Futures</h1><div class="divider"></div><div class="sub">How Western, Japanese, Chinese, Soviet, and Korean sci-fi imagine the future differently &#8212; mapped through Fred Polak&#8217;s framework of Essence and Influence.</div><div class="corpus">6,877 works &#183; v4 &#183; LLM-analysed &#183; 1900&#8211;2025</div></div>
+
+<div class="legend reveal">
+<div class="legend-i"><div class="legend-d" style="background:var(--olive)"></div>Western <span class="legend-n">(n=5,350)</span></div>
+<div class="legend-i"><div class="legend-d" style="background:var(--brown)"></div>Japanese <span class="legend-n">(n=1,196)</span></div>
+<div class="legend-i"><div class="legend-d" style="background:var(--mustard)"></div>Chinese <span class="legend-n">(n=153)</span></div>
+<div class="legend-i"><div class="legend-d" style="background:var(--watchBlue)"></div>Soviet <span class="legend-n">(n=75)</span></div>
+<div class="legend-i"><div class="legend-d" style="background:var(--goldenBrown)"></div>Korean <span class="legend-n">(n=103)</span></div>
+</div>
+
+<div class="mnote reveal"><strong>Methodology:</strong> East Asian entries (n=2,927) analysed via LLM close reading of plot summaries. Western and Soviet retain original v2 analysis.</div>
+
+<div class="stitle reveal">Core Polak Scores</div>
+<div class="sg">
+<div class="card sc reveal-scale"><div class="sl">Western</div><div class="sv" style="color:var(--olive)">-0.186</div><div class="ss">Essence &#183; Influence +0.237</div></div>
+<div class="card sc jp reveal-scale"><div class="sl">Japanese</div><div class="sv" style="color:var(--brown)">-0.165</div><div class="ss">Essence &#183; Influence +0.299</div></div>
+<div class="card sc cn reveal-scale"><div class="sl">Chinese</div><div class="sv" style="color:var(--goldenBrown)">-0.221</div><div class="ss">Essence &#183; Influence +0.269</div></div>
+<div class="card sc su reveal-scale"><div class="sl">Soviet</div><div class="sv" style="color:var(--watchBlue)">-0.282</div><div class="ss">Essence &#183; Influence +0.145</div></div>
+<div class="card sc kr reveal-scale"><div class="sl">Korean</div><div class="sv" style="color:var(--goldenBrown)">-0.196</div><div class="ss">Essence &#183; Influence +0.278</div></div>
+</div>
+
+<div class="stitle reveal">Polak Quadrant Map</div>
+<div class="reveal" style="margin-bottom:48px"><div class="card card-lg">
+<svg viewBox="0 0 860 560" xmlns="http://www.w3.org/2000/svg">
+<defs><pattern id="dg" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="16" cy="16" r="1" fill="#E0E2D8" opacity="0.35"/></pattern></defs>
+<rect x="100" y="30" width="640" height="480" fill="url(#dg)"/>
+<text x="270" y="62" font-family="Lexend,sans-serif" font-size="10" fill="#9A9A8A" font-weight="700" letter-spacing="3" text-anchor="middle">TRANSFORMATIVE</text>
+<text x="570" y="62" font-family="Lexend,sans-serif" font-size="10" fill="#9A9A8A" font-weight="700" letter-spacing="3" text-anchor="middle">PROVIDENTIAL</text>
+<text x="270" y="500" font-family="Lexend,sans-serif" font-size="10" fill="#9A9A8A" font-weight="700" letter-spacing="3" text-anchor="middle">HEROIC STRUGGLE</text>
+<text x="570" y="500" font-family="Lexend,sans-serif" font-size="10" fill="#9A9A8A" font-weight="700" letter-spacing="3" text-anchor="middle">TRAGIC DETERMINISM</text>
+<rect x="100" y="30" width="320" height="240" fill="#4E5A2B" opacity="0.03"/><rect x="420" y="30" width="320" height="240" fill="#5B8A9A" opacity="0.03"/>
+<rect x="100" y="270" width="320" height="240" fill="#E1B83B" opacity="0.03"/><rect x="420" y="270" width="320" height="240" fill="#9A9A8A" opacity="0.03"/>
+<line x1="420" y1="30" x2="420" y2="510" stroke="#E0E2D8" stroke-width="1.5" stroke-dasharray="4,4"/>
+<line x1="100" y1="270" x2="740" y2="270" stroke="#E0E2D8" stroke-width="1.5" stroke-dasharray="4,4"/>
+<circle cx="360" cy="218" r="46" fill="#4E5A2B" opacity="0.07" stroke="#4E5A2B" stroke-width="2"><animate attributeName="r" values="44;50;44" dur="4s" repeatCount="indefinite"/></circle>
+<circle cx="360" cy="218" r="5" fill="#4E5A2B"/><text x="360" y="164" font-family="Lexend" font-size="11" fill="#4E5A2B" font-weight="700" text-anchor="middle">WESTERN</text><text x="360" y="176" font-family="Lexend" font-size="9" fill="#4E5A2B" text-anchor="middle">E:-0.186 I:+0.237</text>
+<circle cx="375" cy="198" r="30" fill="#AC7222" opacity="0.07" stroke="#AC7222" stroke-width="2"><animate attributeName="r" values="28;34;28" dur="4.5s" repeatCount="indefinite"/></circle>
+<circle cx="375" cy="198" r="5" fill="#AC7222"/><text x="422" y="190" font-family="Lexend" font-size="11" fill="#AC7222" font-weight="700">JAPANESE</text><text x="422" y="202" font-family="Lexend" font-size="9" fill="#AC7222">E:-0.165 I:+0.299</text>
+<circle cx="349" cy="204" r="16" fill="#E1B83B" opacity="0.07" stroke="#E1B83B" stroke-width="2"><animate attributeName="r" values="14;20;14" dur="5s" repeatCount="indefinite"/></circle>
+<circle cx="349" cy="204" r="5" fill="#E1B83B"/><text x="315" y="182" font-family="Lexend" font-size="11" fill="#D3963E" font-weight="700" text-anchor="end">CHINESE</text><text x="315" y="194" font-family="Lexend" font-size="9" fill="#D3963E" text-anchor="end">E:-0.221 I:+0.269</text>
+<circle cx="342" cy="242" r="12" fill="#5B8A9A" opacity="0.07" stroke="#5B8A9A" stroke-width="2"><animate attributeName="r" values="10;16;10" dur="4s" repeatCount="indefinite"/></circle>
+<circle cx="342" cy="242" r="5" fill="#5B8A9A"/><text x="320" y="264" font-family="Lexend" font-size="11" fill="#5B8A9A" font-weight="700" text-anchor="end">SOVIET</text><text x="320" y="276" font-family="Lexend" font-size="9" fill="#5B8A9A" text-anchor="end">E:-0.282 I:+0.145</text>
+<circle cx="357" cy="200" r="14" fill="#D3963E" opacity="0.07" stroke="#D3963E" stroke-width="2"><animate attributeName="r" values="12;18;12" dur="5.5s" repeatCount="indefinite"/></circle>
+<circle cx="357" cy="200" r="5" fill="#D3963E"/><text x="388" y="214" font-family="Lexend" font-size="11" fill="#D3963E" font-weight="700">KOREAN</text><text x="388" y="226" font-family="Lexend" font-size="9" fill="#D3963E">E:-0.196 I:+0.278</text>
+</svg></div></div>
+
+<div class="stitle reveal">Quadrant Distribution</div>
+<div class="sg" id="qgrid">
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:#4E5A2B">Western</h3><div class="bg"><div class="br"><div class="bl">HS</div><div class="bt"><div class="bf" data-w="49.5" style="background:#4E5A2B"></div></div><div class="bv" style="color:#4E5A2B">49.5%</div></div><div class="br"><div class="bl">TF</div><div class="bt"><div class="bf" data-w="26.2" style="background:#4E5A2B"></div></div><div class="bv" style="color:#4E5A2B">26.2%</div></div><div class="br"><div class="bl">TD</div><div class="bt"><div class="bf" data-w="19.3" style="background:#4E5A2B"></div></div><div class="bv" style="color:#4E5A2B">19.3%</div></div><div class="br"><div class="bl">PV</div><div class="bt"><div class="bf" data-w="5.0" style="background:#4E5A2B"></div></div><div class="bv" style="color:#4E5A2B">5.0%</div></div></div></div>
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:#AC7222">Japanese</h3><div class="bg"><div class="br"><div class="bl">HS</div><div class="bt"><div class="bf" data-w="50.3" style="background:#AC7222"></div></div><div class="bv" style="color:#AC7222">50.3%</div></div><div class="br"><div class="bl">TF</div><div class="bt"><div class="bf" data-w="22.7" style="background:#AC7222"></div></div><div class="bv" style="color:#AC7222">22.7%</div></div><div class="br"><div class="bl">TD</div><div class="bt"><div class="bf" data-w="17.5" style="background:#AC7222"></div></div><div class="bv" style="color:#AC7222">17.5%</div></div><div class="br"><div class="bl">PV</div><div class="bt"><div class="bf" data-w="9.5" style="background:#AC7222"></div></div><div class="bv" style="color:#AC7222">9.5%</div></div></div></div>
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:#D3963E">Chinese</h3><div class="bg"><div class="br"><div class="bl">HS</div><div class="bt"><div class="bf" data-w="57.5" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">57.5%</div></div><div class="br"><div class="bl">TF</div><div class="bt"><div class="bf" data-w="19.6" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">19.6%</div></div><div class="br"><div class="bl">TD</div><div class="bt"><div class="bf" data-w="20.9" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">20.9%</div></div><div class="br"><div class="bl">PV</div><div class="bt"><div class="bf" data-w="2.0" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">2.0%</div></div></div></div>
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:#5B8A9A">Soviet</h3><div class="bg"><div class="br"><div class="bl">HS</div><div class="bt"><div class="bf" data-w="69.3" style="background:#5B8A9A"></div></div><div class="bv" style="color:#5B8A9A">69.3%</div></div><div class="br"><div class="bl">TF</div><div class="bt"><div class="bf" data-w="12.0" style="background:#5B8A9A"></div></div><div class="bv" style="color:#5B8A9A">12.0%</div></div><div class="br"><div class="bl">TD</div><div class="bt"><div class="bf" data-w="10.7" style="background:#5B8A9A"></div></div><div class="bv" style="color:#5B8A9A">10.7%</div></div><div class="br"><div class="bl">PV</div><div class="bt"><div class="bf" data-w="8.0" style="background:#5B8A9A"></div></div><div class="bv" style="color:#5B8A9A">8.0%</div></div></div></div>
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:#D3963E">Korean</h3><div class="bg"><div class="br"><div class="bl">HS</div><div class="bt"><div class="bf" data-w="52.4" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">52.4%</div></div><div class="br"><div class="bl">TF</div><div class="bt"><div class="bf" data-w="5.8" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">5.8%</div></div><div class="br"><div class="bl">TD</div><div class="bt"><div class="bf" data-w="39.8" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">39.8%</div></div><div class="br"><div class="bl">PV</div><div class="bt"><div class="bf" data-w="1.9" style="background:#D3963E"></div></div><div class="bv" style="color:#D3963E">1.9%</div></div></div></div>
+</div>
+
+<div class="stitle reveal">Full Comparison</div>
+<table class="ct card reveal"><thead><tr><th>Metric</th><th style="text-align:center;color:#4E5A2B">Western</th><th style="text-align:center;color:#AC7222">Japanese</th><th style="text-align:center;color:#D3963E">Chinese</th><th style="text-align:center;color:#5B8A9A">Soviet</th><th style="text-align:center;color:#D3963E">Korean</th></tr></thead><tbody>
+<tr><td class="m">Essence</td><td class="v" style="color:#4E5A2B">-0.186</td><td class="v" style="color:#AC7222">-0.165</td><td class="v" style="color:#D3963E">-0.221</td><td class="v" style="color:#5B8A9A">-0.282</td><td class="v" style="color:#D3963E">-0.196</td></tr>
+<tr><td class="m">Influence</td><td class="v" style="color:#4E5A2B">+0.237</td><td class="v" style="color:#AC7222">+0.299</td><td class="v" style="color:#D3963E">+0.269</td><td class="v" style="color:#5B8A9A">+0.145</td><td class="v" style="color:#D3963E">+0.278</td></tr>
+<tr><td class="m">Primary Myth</td><td class="v" style="color:#4E5A2B">Hero&#8217;s Journey</td><td class="v" style="color:#AC7222">Hero&#8217;s Journey</td><td class="v" style="color:#D3963E">The Frontier</td><td class="v" style="color:#5B8A9A">Hero&#8217;s Journey</td><td class="v" style="color:#D3963E">Hero&#8217;s Journey</td></tr>
+<tr><td class="m">Future Vision</td><td class="v" style="color:#4E5A2B">Ambiguous</td><td class="v" style="color:#AC7222">Ambiguous</td><td class="v" style="color:#D3963E">Ambiguous</td><td class="v" style="color:#5B8A9A">Dystopian</td><td class="v" style="color:#D3963E">Ambiguous</td></tr>
+<tr><td class="m">Tech Connotation</td><td class="v" style="color:#4E5A2B">Promethean</td><td class="v" style="color:#AC7222">Ambivalent</td><td class="v" style="color:#D3963E">Ambivalent</td><td class="v" style="color:#5B8A9A">Neutral</td><td class="v" style="color:#D3963E">Ambivalent</td></tr>
+<tr><td class="m">Agency Type</td><td class="v" style="color:#4E5A2B">Collective</td><td class="v" style="color:#AC7222">AI / Tech</td><td class="v" style="color:#D3963E">Individual Hero</td><td class="v" style="color:#5B8A9A">Undetermined</td><td class="v" style="color:#D3963E">Hybrid</td></tr>
+</tbody></table>
+
+<div class="stitle reveal">Dialectical Axes</div>
+<div class="dg">
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:14px">Nature vs Technology</h3><div class="dgrp">
+<div><div class="dlbl">Western</div><div class="dbars"><div style="width:26%;background:var(--olive);opacity:0.75"></div><div style="width:43%;background:var(--borderLight)"></div><div style="width:31%;background:var(--olive);opacity:0.3"></div></div><div class="dleg"><span>Nature 26%</span><span>Bal 43%</span><span>Tech 31%</span></div></div>
+<div><div class="dlbl">Japanese</div><div class="dbars"><div style="width:11%;background:var(--brown);opacity:0.75"></div><div style="width:36%;background:var(--borderLight)"></div><div style="width:53%;background:var(--brown);opacity:0.3"></div></div><div class="dleg"><span>Nature 11%</span><span>Bal 36%</span><span>Tech 53%</span></div></div>
+<div><div class="dlbl">Chinese</div><div class="dbars"><div style="width:10%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:25%;background:var(--borderLight)"></div><div style="width:65%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Nature 10%</span><span>Bal 25%</span><span>Tech 65%</span></div></div>
+<div><div class="dlbl">Soviet</div><div class="dbars"><div style="width:40%;background:var(--watchBlue);opacity:0.75"></div><div style="width:38%;background:var(--borderLight)"></div><div style="width:22%;background:var(--watchBlue);opacity:0.3"></div></div><div class="dleg"><span>Nature 40%</span><span>Bal 38%</span><span>Tech 22%</span></div></div>
+<div><div class="dlbl">Korean</div><div class="dbars"><div style="width:13%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:42%;background:var(--borderLight)"></div><div style="width:45%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Nature 13%</span><span>Bal 42%</span><span>Tech 45%</span></div></div>
+</div></div>
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:14px">Individual vs Collective</h3><div class="dgrp">
+<div><div class="dlbl">Western</div><div class="dbars"><div style="width:45%;background:var(--olive);opacity:0.75"></div><div style="width:34%;background:var(--borderLight)"></div><div style="width:21%;background:var(--olive);opacity:0.3"></div></div><div class="dleg"><span>Individual 45%</span><span>Bal 34%</span><span>Collective 21%</span></div></div>
+<div><div class="dlbl">Japanese</div><div class="dbars"><div style="width:41%;background:var(--brown);opacity:0.75"></div><div style="width:34%;background:var(--borderLight)"></div><div style="width:25%;background:var(--brown);opacity:0.3"></div></div><div class="dleg"><span>Individual 41%</span><span>Bal 34%</span><span>Collective 25%</span></div></div>
+<div><div class="dlbl">Chinese</div><div class="dbars"><div style="width:55%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:25%;background:var(--borderLight)"></div><div style="width:20%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Individual 55%</span><span>Bal 25%</span><span>Collective 20%</span></div></div>
+<div><div class="dlbl">Soviet</div><div class="dbars"><div style="width:44%;background:var(--watchBlue);opacity:0.75"></div><div style="width:38%;background:var(--borderLight)"></div><div style="width:18%;background:var(--watchBlue);opacity:0.3"></div></div><div class="dleg"><span>Individual 44%</span><span>Bal 38%</span><span>Collective 18%</span></div></div>
+<div><div class="dlbl">Korean</div><div class="dbars"><div style="width:40%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:31%;background:var(--borderLight)"></div><div style="width:29%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Individual 40%</span><span>Bal 31%</span><span>Collective 29%</span></div></div>
+</div></div>
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:14px">Freedom vs Control</h3><div class="dgrp">
+<div><div class="dlbl">Western</div><div class="dbars"><div style="width:13%;background:var(--olive);opacity:0.75"></div><div style="width:59%;background:var(--borderLight)"></div><div style="width:28%;background:var(--olive);opacity:0.3"></div></div><div class="dleg"><span>Freedom 13%</span><span>Bal 59%</span><span>Control 28%</span></div></div>
+<div><div class="dlbl">Japanese</div><div class="dbars"><div style="width:17%;background:var(--brown);opacity:0.75"></div><div style="width:62%;background:var(--borderLight)"></div><div style="width:21%;background:var(--brown);opacity:0.3"></div></div><div class="dleg"><span>Freedom 17%</span><span>Bal 62%</span><span>Control 21%</span></div></div>
+<div><div class="dlbl">Chinese</div><div class="dbars"><div style="width:16%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:39%;background:var(--borderLight)"></div><div style="width:45%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Freedom 16%</span><span>Bal 39%</span><span>Control 45%</span></div></div>
+<div><div class="dlbl">Soviet</div><div class="dbars"><div style="width:5%;background:var(--watchBlue);opacity:0.75"></div><div style="width:68%;background:var(--borderLight)"></div><div style="width:27%;background:var(--watchBlue);opacity:0.3"></div></div><div class="dleg"><span>Freedom 5%</span><span>Bal 68%</span><span>Control 27%</span></div></div>
+<div><div class="dlbl">Korean</div><div class="dbars"><div style="width:20%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:54%;background:var(--borderLight)"></div><div style="width:26%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Freedom 20%</span><span>Bal 54%</span><span>Control 26%</span></div></div>
+</div></div>
+<div class="card reveal-scale"><h3 style="font-size:13px;font-weight:700;margin-bottom:14px">Hope vs Despair</h3><div class="dgrp">
+<div><div class="dlbl">Western</div><div class="dbars"><div style="width:15%;background:var(--olive);opacity:0.75"></div><div style="width:74%;background:var(--borderLight)"></div><div style="width:11%;background:var(--olive);opacity:0.3"></div></div><div class="dleg"><span>Hope 15%</span><span>Bal 74%</span><span>Despair 11%</span></div></div>
+<div><div class="dlbl">Japanese</div><div class="dbars"><div style="width:18%;background:var(--brown);opacity:0.75"></div><div style="width:65%;background:var(--borderLight)"></div><div style="width:17%;background:var(--brown);opacity:0.3"></div></div><div class="dleg"><span>Hope 18%</span><span>Bal 65%</span><span>Despair 17%</span></div></div>
+<div><div class="dlbl">Chinese</div><div class="dbars"><div style="width:22%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:45%;background:var(--borderLight)"></div><div style="width:33%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Hope 22%</span><span>Bal 45%</span><span>Despair 33%</span></div></div>
+<div><div class="dlbl">Soviet</div><div class="dbars"><div style="width:18%;background:var(--watchBlue);opacity:0.75"></div><div style="width:68%;background:var(--borderLight)"></div><div style="width:14%;background:var(--watchBlue);opacity:0.3"></div></div><div class="dleg"><span>Hope 18%</span><span>Bal 68%</span><span>Despair 14%</span></div></div>
+<div><div class="dlbl">Korean</div><div class="dbars"><div style="width:23%;background:var(--goldenBrown);opacity:0.75"></div><div style="width:50%;background:var(--borderLight)"></div><div style="width:27%;background:var(--goldenBrown);opacity:0.3"></div></div><div class="dleg"><span>Hope 23%</span><span>Bal 50%</span><span>Despair 27%</span></div></div>
+</div></div>
+</div>
+
+<div class="stitle reveal">Tradition Signatures</div>
+<div class="sg">
+<div class="card sc sigc reveal-scale"><span class="sigt" style="background:var(--oliveLight);color:var(--olive)">Western</span><h3 style="color:var(--olive)">Western</h3><p>The dominant global tradition. Balances pessimistic futures with individual agency. The Hero&#8217;s Journey and Frontier myths predominate.</p><p class="stags">Space Exploration, Alien Contact, Memory Manipulation, Survival</p></div>
+<div class="card sc jp sigc reveal-scale"><span class="sigt" style="background:var(--brownLight);color:var(--brown)">Japanese</span><h3 style="color:var(--brown)">Japanese</h3><p>Highest influence scores. Emphasis on collective duty and technological ambivalence. Mecha and post-apocalyptic genres encode human fragility and mechanical power.</p><p class="stags">Space Exploration, AI &amp; Machine Intelligence, Alien Contact</p></div>
+<div class="card sc cn sigc reveal-scale"><span class="sigt" style="background:var(--mustardLight);color:var(--goldenBrown)">Chinese</span><h3 style="color:var(--goldenBrown)">Chinese</h3><p>The Frontier myth dominates uniquely. Technology as civilisational tool. Ambivalent tech connotation reflects pragmatic view of progress.</p><p class="stags">Space Exploration, Survival, Rebellion &amp; Resistance, Alien Contact</p></div>
+<div class="card sc su sigc reveal-scale"><span class="sigt" style="background:#EEF4F6;color:var(--watchBlue)">Soviet</span><h3 style="color:var(--watchBlue)">Soviet</h3><p>Lowest influence &#8212; futures through systemic forces. The most fatalistic tradition. Only one with Dystopian as dominant future vision.</p><p class="stags">Alien Contact, Genetic Engineering, Space Exploration, Memory</p></div>
+<div class="card sc kr sigc reveal-scale"><span class="sigt" style="background:#FBF1E3;color:var(--goldenBrown)">Korean</span><h3 style="color:var(--goldenBrown)">Korean</h3><p>Highest tragic determinism (39.8%). Social critique with individual-vs-system tension. Hybrid agency reflects anxieties about institutional failure.</p><p class="stags">AI, Environmental Collapse, Survival, Corporate Power</p></div>
+</div>
+
+<div class="footer reveal"><div class="fbar"></div>Five Traditions of Sci-Fi Futures &#183; 6,877 works &#183; v4 &#183; March 2026</div>
+
+</div></div>
+
+<script>
+// ═══ MODE SWITCH ═══
+function sw(m){
+  document.getElementById('sb').className='tbtn'+(m==='story'?' on':'');
+  document.getElementById('db').className='tbtn'+(m==='data'?' on':'');
+  var s=document.getElementById('SM'),d=document.getElementById('DM');
+  if(m==='story'){s.className='story';d.className='data'}
+  else{s.className='story off';d.className='data on';animBars()}
+  window.scrollTo(0,0);
+  setTimeout(initObs,100);
+}
+
+// ═══ INTERSECTION OBSERVER ═══
+function initObs(){
+  var els=document.querySelectorAll('.reveal:not(.vis),.reveal-scale:not(.vis)');
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}
+    });
+  },{threshold:0.12,rootMargin:'-40px'});
+  els.forEach(function(el){obs.observe(el)});
+}
+initObs();
+
+// ═══ BAR ANIMATION ═══
+function animBars(){
+  setTimeout(function(){
+    document.querySelectorAll('.bf').forEach(function(b){
+      var w=b.getAttribute('data-w');
+      if(w)b.style.width=w+'%';
+    });
+  },300);
+}
+
+// ═══ SCROLL PROGRESS ═══
+window.addEventListener('scroll',function(){
+  var h=document.documentElement.scrollHeight-window.innerHeight;
+  var p=document.getElementById('pb');
+  if(p&&h>0)p.style.width=Math.min(100,(window.scrollY/h)*100)+'%';
+},{passive:true});
+
+// ═══ P5.JS DRAMATIC STARFIELD ═══
+var pSpeed=0.4;
+new p5(function(p){
+  var pts=[],W,H;
+  var colors=[[78,90,43],[172,114,34],[225,184,59],[91,138,154],[211,150,62]];
+
+  function Pt(randomY){
+    this.x=p.random(p.width);
+    this.y=randomY?p.random(p.height):p.random(-30,-5);
+    this.sz=p.random(1.5,5);
+    this.sp=p.random(0.15,0.6);
+    this.op=p.random(40,120);
+    this.drift=p.random(-0.4,0.4);
+    this.c=colors[Math.floor(p.random(colors.length))];
+    this.phase=p.random(0,p.TWO_PI);
+    this.pulseSpeed=p.random(0.01,0.04);
+    this.glowSize=p.random(6,18);
+  }
+  Pt.prototype.reset=function(){
+    this.x=p.random(p.width);this.y=p.random(-30,-5);
+    this.sz=p.random(1.5,5);this.sp=p.random(0.15,0.6);
+    this.op=p.random(40,120);this.drift=p.random(-0.4,0.4);
+    this.c=colors[Math.floor(p.random(colors.length))];
+    this.phase=p.random(0,p.TWO_PI);this.glowSize=p.random(6,18);
+  };
+  Pt.prototype.update=function(){
+    this.y+=this.sp*pSpeed;
+    this.x+=this.drift*pSpeed;
+    this.phase+=this.pulseSpeed;
+    if(this.y>p.height+20||this.x<-20||this.x>p.width+20)this.reset();
+  };
+  Pt.prototype.draw=function(){
+    var a=this.op+Math.sin(this.phase)*30;
+    // Glow
+    var glow=this.glowSize+Math.sin(this.phase)*4;
+    p.noStroke();
+    for(var g=glow;g>0;g-=2){
+      var ga=p.map(g,0,glow,a*0.7,0);
+      p.fill(this.c[0],this.c[1],this.c[2],ga/255*50);
+      p.circle(this.x,this.y,g);
+    }
+    // Core
+    p.fill(this.c[0],this.c[1],this.c[2],a);
+    p.circle(this.x,this.y,this.sz);
+  };
+
+  p.setup=function(){
+    var canvas=p.createCanvas(p.windowWidth,p.windowHeight);
+    canvas.parent('p5bg');
+    canvas.style('display','block');
+    for(var i=0;i<150;i++)pts.push(new Pt(true));
+    W=p.width;H=p.height;
+  };
+  p.draw=function(){
+    p.clear();
+    // Constellation lines
+    for(var i=0;i<pts.length;i++){
+      for(var j=i+1;j<pts.length;j++){
+        var d=p.dist(pts[i].x,pts[i].y,pts[j].x,pts[j].y);
+        if(d<130){
+          var la=p.map(d,0,130,25,0);
+          p.stroke(pts[i].c[0],pts[i].c[1],pts[i].c[2],la);
+          p.strokeWeight(0.6);
+          p.line(pts[i].x,pts[i].y,pts[j].x,pts[j].y);
+        }
+      }
+    }
+    // Particles
+    for(var k=0;k<pts.length;k++){pts[k].update();pts[k].draw()}
+  };
+  p.windowResized=function(){p.resizeCanvas(p.windowWidth,p.windowHeight)};
+},'p5bg');
+
+// ═══ P5.JS TRANSITION EFFECTS ═══
+var txType=null,txStart=0,txDur=1400,txParticles=[];
+var txColors=[[78,90,43],[172,114,34],[225,184,59],[91,138,154],[211,150,62]];
+
+new p5(function(p){
+  p.setup=function(){
+    var c=p.createCanvas(p.windowWidth,p.windowHeight);
+    c.parent('txCanvas');c.style('display','block');
+  };
+  p.draw=function(){
+    p.clear();
+    if(!txType)return;
+    var elapsed=Date.now()-txStart;
+    var prog=Math.min(elapsed/txDur,1);
+    var ease=prog<0.5?2*prog*prog:1-Math.pow(-2*prog+2,2)/2;
+    var cx=p.width/2,cy=p.height/2;
+
+    if(txType==='warp'){
+      // Hyperspace warp lines
+      var intensity=prog<0.5?ease:1-ease;
+      p.push();p.translate(cx,cy);
+      for(var i=0;i<60;i++){
+        var angle=p.noise(i*0.3,elapsed*0.001)*p.TWO_PI*2;
+        var len=intensity*p.height*0.7;
+        var sw=p.map(intensity,0,1,0.5,3);
+        var ci=txColors[i%5];
+        p.stroke(ci[0],ci[1],ci[2],intensity*120);
+        p.strokeWeight(sw);
+        var r1=50+p.noise(i,elapsed*0.002)*100;
+        var r2=r1+len;
+        p.line(Math.cos(angle)*r1,Math.sin(angle)*r1,Math.cos(angle)*r2,Math.sin(angle)*r2);
+      }
+      // Central glow
+      for(var g=80;g>0;g-=8){
+        p.noStroke();
+        p.fill(225,184,59,intensity*g/80*15);
+        p.circle(0,0,g*intensity*3);
+      }
+      p.pop();
+    }
+
+    else if(txType==='glitch'){
+      // Digital corruption bars
+      var intensity=prog<0.5?ease:1-ease;
+      var numBars=Math.floor(intensity*30);
+      for(var i=0;i<numBars;i++){
+        var y=p.noise(i*0.5,elapsed*0.003)*p.height;
+        var w=p.noise(i*0.7,elapsed*0.005)*p.width*0.8;
+        var x=p.random(p.width);
+        var h=p.random(1,6);
+        var ci=txColors[Math.floor(p.random(5))];
+        p.noStroke();
+        p.fill(ci[0],ci[1],ci[2],intensity*80);
+        p.rect(x-w/2,y,w,h);
+      }
+      // RGB channel split blocks
+      if(intensity>0.3){
+        var blockCount=Math.floor((intensity-0.3)*20);
+        for(var b=0;b<blockCount;b++){
+          var bx=p.random(p.width);var by=p.random(p.height);
+          var bw=p.random(20,120);var bh=p.random(5,30);
+          p.fill(225,184,59,intensity*30);p.rect(bx+3,by,bw,bh);
+          p.fill(91,138,154,intensity*30);p.rect(bx-3,by+2,bw,bh);
+        }
+      }
+      // Scan lines burst
+      for(var s=0;s<p.height;s+=4){
+        if(p.random()<intensity*0.15){
+          p.fill(255,255,255,intensity*15);
+          p.noStroke();
+          p.rect(0,s,p.width,2);
+        }
+      }
+    }
+
+    else if(txType==='burst'){
+      // Particle explosion/implosion
+      if(elapsed<100&&txParticles.length<120){
+        for(var i=0;i<120;i++){
+          var angle=p.random(p.TWO_PI);
+          var speed=p.random(3,12);
+          var ci=txColors[Math.floor(p.random(5))];
+          txParticles.push({
+            x:cx,y:cy,
+            vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,
+            sz:p.random(2,8),c:ci,life:1,
+            glow:p.random(10,25)
+          });
+        }
+      }
+      // Update and draw
+      for(var j=txParticles.length-1;j>=0;j--){
+        var pt=txParticles[j];
+        if(prog<0.5){
+          pt.x+=pt.vx*1.5;pt.y+=pt.vy*1.5;
+        }else{
+          pt.x+=(cx-pt.x)*0.04;pt.y+=(cy-pt.y)*0.04;
+        }
+        pt.life=prog<0.5?1-prog:prog;
+        var alpha=pt.life*0.6;
+        // Glow halo
+        for(var g=pt.glow;g>0;g-=3){
+          p.noStroke();
+          p.fill(pt.c[0],pt.c[1],pt.c[2],alpha*g/pt.glow*20);
+          p.circle(pt.x,pt.y,g);
+        }
+        p.fill(pt.c[0],pt.c[1],pt.c[2],alpha*200);
+        p.noStroke();
+        p.circle(pt.x,pt.y,pt.sz);
+        // Trails
+        p.stroke(pt.c[0],pt.c[1],pt.c[2],alpha*40);
+        p.strokeWeight(0.5);
+        p.line(pt.x,pt.y,pt.x-pt.vx*3,pt.y-pt.vy*3);
+      }
+      // Central flash
+      if(prog<0.15){
+        var flash=1-prog/0.15;
+        p.noStroke();
+        p.fill(255,254,249,flash*180);
+        p.circle(cx,cy,flash*200);
+      }
+    }
+
+    if(prog>=1){txType=null;txParticles=[];}
+  };
+  p.windowResized=function(){p.resizeCanvas(p.windowWidth,p.windowHeight)};
+},'txCanvas');
+
+// ═══ TRANSITION TRIGGERS ═══
+function initTransitions(){
+  document.querySelectorAll('.act-divider').forEach(function(div){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting&&!txType){
+          txType=div.getAttribute('data-tx')||'burst';
+          txStart=Date.now();
+          txParticles=[];
+          obs.unobserve(div);
+        }
+      });
+    },{threshold:0.5});
+    obs.observe(div);
+  });
+}
+setTimeout(initTransitions,300);
+
+// ═══ GLITCH TEXT EFFECT ═══
+function initGlitch(){
+  document.querySelectorAll('.act-h').forEach(function(el){
+    var orig=el.innerHTML;
+    setInterval(function(){
+      var r=document.createElement('div');
+      r.className='glitch-r';r.innerHTML=orig;
+      var b=document.createElement('div');
+      b.className='glitch-b';b.innerHTML=orig;
+      el.style.position='relative';
+      el.appendChild(r);el.appendChild(b);
+      setTimeout(function(){
+        if(r.parentNode)r.parentNode.removeChild(r);
+        if(b.parentNode)b.parentNode.removeChild(b);
+      },120);
+    },4000+Math.random()*3000);
+  });
+}
+setTimeout(initGlitch,500);
+</script>
+</body>
+</html>
