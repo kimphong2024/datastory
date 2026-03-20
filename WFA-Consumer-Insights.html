@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WFA Consumer Insights — Knowledge Synthesis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── Design System: Earthy Foresight ── */
+:root {
+  --cream: #FFFEF9;
+  --olive: #4E5A2B;
+  --olive-dark: #3A4320;
+  --olive-light: #EEF0E8;
+  --brown: #AC7222;
+  --brown-light: #FBF5EC;
+  --mustard: #E1B83B;
+  --mustard-light: #FEF9E7;
+  --golden: #D3963E;
+  --charcoal: #2C2C2C;
+  --mid: #6B6B5E;
+  --border: #E0E2D8;
+  --white: #FFFFFF;
+  --font: 'Lexend', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--cream);
+  color: var(--charcoal);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── Nav ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,254,249,0.97);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 56px;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--olive); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; letter-spacing: 0.5px;
+}
+.nav-title { font-size: 13px; font-weight: 700; color: var(--charcoal); line-height: 1.2; }
+.nav-sub { font-size: 11px; color: var(--mid); font-weight: 400; }
+.nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+.nav-links a {
+  font-size: 12px; font-weight: 500; color: var(--mid);
+  text-decoration: none; padding: 6px 10px; border-radius: 6px;
+  transition: all 0.15s; cursor: pointer;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--olive); background: var(--olive-light); font-weight: 600; }
+
+/* ── Hero ── */
+.hero {
+  padding: 4rem 2rem 3rem;
+  max-width: 1200px; margin: 0 auto;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--olive-light); border-radius: 20px;
+  padding: 6px 16px; font-size: 11px; font-weight: 600;
+  color: var(--olive); text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+.hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--olive); }
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800; line-height: 1.15;
+  margin-bottom: 16px;
+}
+.hero h1 .accent { color: var(--brown); }
+.hero p {
+  font-size: 16px; color: var(--mid); max-width: 700px;
+  margin: 0 auto 32px; font-weight: 400; line-height: 1.7;
+}
+
+/* ── Stats Row ── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  max-width: 1200px; margin: 0 auto 3rem; padding: 0 2rem;
+}
+.stat-card {
+  border-radius: 14px; padding: 24px; text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s; cursor: default;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.stat-card.olive-bg { background: var(--olive); color: #fff; }
+.stat-card.brown-bg { background: var(--brown); color: #fff; }
+.stat-card.mustard-bg { background: var(--mustard); color: var(--charcoal); }
+.stat-card.charcoal-bg { background: var(--charcoal); color: #fff; }
+.stat-num { font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+.stat-label { font-size: 11px; font-weight: 500; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── Section ── */
+.section { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; }
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 32px; padding-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+}
+.section-dot { width: 10px; height: 10px; border-radius: 50%; }
+.section-dot.olive { background: var(--olive); }
+.section-dot.brown { background: var(--brown); }
+.section-dot.mustard { background: var(--mustard); }
+.section-dot.golden { background: var(--golden); }
+.section-dot.charcoal { background: var(--charcoal); }
+.section-dot.mid { background: var(--mid); }
+.section-title { font-size: 22px; font-weight: 700; }
+.section-count { font-size: 12px; font-weight: 500; color: var(--mid); margin-left: auto; }
+
+/* ── Filter Tabs ── */
+.filter-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 32px; padding: 6px;
+  background: var(--olive-light); border-radius: 12px;
+  width: fit-content;
+}
+.filter-btn {
+  font-family: var(--font); font-size: 12px; font-weight: 500;
+  padding: 8px 16px; border-radius: 8px; border: none;
+  background: transparent; color: var(--mid); cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover { color: var(--charcoal); }
+.filter-btn.active { background: var(--white); color: var(--olive); font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+/* ── Article Cards ── */
+.cards-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: var(--white); border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 28px; cursor: pointer;
+  transition: all 0.25s;
+  position: relative; overflow: hidden;
+}
+.card:hover { border-color: var(--olive); box-shadow: 0 8px 32px rgba(78,90,43,0.1); transform: translateY(-3px); }
+.card-tag {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 4px 10px; border-radius: 6px;
+  margin-bottom: 14px;
+}
+.card-tag.ai { background: rgba(78,90,43,0.1); color: var(--olive); }
+.card-tag.dei { background: rgba(172,114,34,0.1); color: var(--brown); }
+.card-tag.teams { background: rgba(225,184,59,0.15); color: #9A7A10; }
+.card-tag.benchmark { background: rgba(44,44,44,0.08); color: var(--mid); }
+.card-tag.culture { background: rgba(211,150,62,0.15); color: var(--golden); }
+.card-tag.forum { background: rgba(78,90,43,0.06); color: var(--mid); }
+.card h3 { font-size: 16px; font-weight: 700; line-height: 1.35; margin-bottom: 10px; }
+.card-date { font-size: 11px; color: var(--mid); font-weight: 500; margin-bottom: 10px; }
+.card-excerpt { font-size: 13px; color: var(--mid); line-height: 1.6; }
+.card-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; color: var(--olive);
+  margin-top: 14px; text-decoration: none;
+  transition: gap 0.2s;
+}
+.card-link:hover { gap: 8px; }
+
+/* ── Expanded Card / Modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(44,44,44,0.5); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 2rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--cream); border-radius: 20px;
+  max-width: 800px; width: 100%; max-height: 85vh;
+  overflow-y: auto; padding: 40px; position: relative;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+  animation: modalIn 0.3s ease;
+}
+@keyframes modalIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--white);
+  font-size: 18px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all 0.2s; color: var(--mid);
+}
+.modal-close:hover { background: var(--olive); color: #fff; border-color: var(--olive); }
+.modal-tag { margin-bottom: 16px; }
+.modal h2 { font-size: 24px; font-weight: 800; line-height: 1.3; margin-bottom: 8px; }
+.modal-date { font-size: 12px; color: var(--mid); font-weight: 500; margin-bottom: 20px; }
+.modal-body { font-size: 14px; line-height: 1.8; color: #444; }
+.modal-body h3 { font-size: 16px; font-weight: 700; color: var(--charcoal); margin: 20px 0 10px; }
+.modal-body ul { padding-left: 20px; margin: 10px 0; }
+.modal-body li { margin-bottom: 6px; }
+.modal-body strong { color: var(--charcoal); }
+.modal-body .stat-highlight {
+  display: inline-block; background: var(--olive-light);
+  padding: 2px 8px; border-radius: 4px; font-weight: 700;
+  color: var(--olive);
+}
+.modal-source {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 24px; padding: 10px 20px; border-radius: 10px;
+  background: var(--olive); color: #fff; font-size: 13px;
+  font-weight: 600; text-decoration: none; transition: background 0.2s;
+}
+.modal-source:hover { background: var(--olive-dark); }
+
+/* ── Timeline ── */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+  width: 2px; background: var(--border);
+}
+.timeline-item { position: relative; margin-bottom: 32px; }
+.timeline-dot {
+  position: absolute; left: -28px; top: 6px;
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 3px solid var(--olive); background: var(--cream);
+}
+.timeline-year { font-size: 13px; font-weight: 700; color: var(--olive); margin-bottom: 4px; }
+.timeline-text { font-size: 14px; color: var(--mid); line-height: 1.6; }
+.timeline-text strong { color: var(--charcoal); }
+
+/* ── Key Insights Panel ── */
+.insights-panel {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px; margin-bottom: 40px;
+}
+.insight-row {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 16px 0; border-bottom: 1px solid var(--border);
+}
+.insight-row:last-child { border-bottom: none; }
+.insight-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: var(--olive); color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.insight-text { font-size: 14px; line-height: 1.6; }
+.insight-text strong { color: var(--charcoal); }
+
+/* ── Charts ── */
+.chart-container {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px; margin-bottom: 24px;
+}
+.chart-title { font-size: 15px; font-weight: 700; margin-bottom: 20px; }
+.chart-wrap { position: relative; height: 300px; }
+
+/* ── Quotes ── */
+.quote-card {
+  background: var(--brown-light); border-left: 4px solid var(--brown);
+  border-radius: 0 12px 12px 0; padding: 24px 28px;
+  margin-bottom: 16px;
+}
+.quote-text { font-size: 15px; font-weight: 500; font-style: italic; color: var(--charcoal); line-height: 1.7; margin-bottom: 8px; }
+.quote-attr { font-size: 12px; font-weight: 600; color: var(--brown); }
+
+/* ── Footer ── */
+footer {
+  text-align: center; padding: 3rem 2rem;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--mid);
+}
+footer a { color: var(--olive); text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .cards-grid { grid-template-columns: 1fr; }
+  nav { flex-direction: column; height: auto; padding: 12px 1rem; gap: 8px; }
+  .nav-links { justify-content: center; }
+  .hero { padding: 2rem 1rem; }
+  .section { padding: 0 1rem 3rem; }
+  .modal { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">WFA</div>
+    <div>
+      <div class="nav-title">Consumer Insights</div>
+      <div class="nav-sub">Knowledge Synthesis</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#overview" class="active" onclick="scrollToSection('overview')">Overview</a>
+    <a href="#themes" onclick="scrollToSection('themes')">Themes</a>
+    <a href="#timeline-sec" onclick="scrollToSection('timeline-sec')">Timeline</a>
+    <a href="#data" onclick="scrollToSection('data')">Data</a>
+    <a href="#articles" onclick="scrollToSection('articles')">All Articles</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="overview">
+  <div class="hero-badge"><span></span> WFA Knowledge Hub</div>
+  <h1>The State of <span class="accent">Consumer Insights</span></h1>
+  <p>A synthesis of 42 articles from the World Federation of Advertisers spanning 2015-2026, distilling a decade of evolution in how brands understand consumers, build insight functions, and drive growth.</p>
+</section>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card olive-bg"><div class="stat-num">42</div><div class="stat-label">Articles Analyzed</div></div>
+  <div class="stat-card brown-bg"><div class="stat-num">11</div><div class="stat-label">Years Covered</div></div>
+  <div class="stat-card mustard-bg"><div class="stat-num">6</div><div class="stat-label">Key Themes</div></div>
+  <div class="stat-card charcoal-bg"><div class="stat-num">600+</div><div class="stat-label">Forum Leaders</div></div>
+</div>
+
+<!-- Key Insights -->
+<div class="section" id="themes">
+  <div class="section-header">
+    <div class="section-dot olive"></div>
+    <div class="section-title">Cross-Cutting Insights</div>
+  </div>
+
+  <div class="insights-panel">
+    <div class="insight-row">
+      <div class="insight-num">1</div>
+      <div class="insight-text"><strong>AI augments, not replaces.</strong> Only 3% of orgs have fully embedded AI into insights. 94% say it enables faster decisions, but 52% cite data privacy as the top barrier. The future insight professional needs prompt engineering skills.</div>
+    </div>
+    <div class="insight-row">
+      <div class="insight-num">2</div>
+      <div class="insight-text"><strong>Inclusion drives growth.</strong> Progressive advertising delivers +3.5% short-term and +16.3% long-term sales lift. 60% of Cannes Grand Prix winners embedded inclusion. Only 23% of people globally feel well-represented by advertisers.</div>
+    </div>
+    <div class="insight-row">
+      <div class="insight-num">3</div>
+      <div class="insight-text"><strong>Insights must become business-critical.</strong> Two-thirds of insight teams restructured in 3 years. 60% of leaders want direct C-suite reporting (only 20% have it). The function must evolve from operational to strategic advisory.</div>
+    </div>
+    <div class="insight-row">
+      <div class="insight-num">4</div>
+      <div class="insight-text"><strong>Culture change is bottom-up.</strong> Creating insight-driven organizations requires subculture thinking, contagious diffusion through peer adoption, and patience. Consumer immersion experiences are the strongest catalyst.</div>
+    </div>
+    <div class="insight-row">
+      <div class="insight-num">5</div>
+      <div class="insight-text"><strong>Behavioral science unlocks CX.</strong> The peak-end effect, nudge theory, and System 1 thinking offer brands new ways to redesign customer experiences — from VR research to post-pandemic journey mapping.</div>
+    </div>
+  </div>
+
+  <!-- Quotes -->
+  <div class="quote-card">
+    <div class="quote-text">"Inclusive insights are foundational for better marketing. Deeper understanding can only be achieved by designing inclusive insights learning plans up front."</div>
+    <div class="quote-attr">Susan Akkad, Estee Lauder</div>
+  </div>
+  <div class="quote-card">
+    <div class="quote-text">"AI applied right will act as an insights enabler: augmenting, not replacing, the human expertise."</div>
+    <div class="quote-attr">Ioana Danila, WFA Global Insights</div>
+  </div>
+  <div class="quote-card">
+    <div class="quote-text">"If you are not 'in charge' in your organisation, there is only one way culture can change — and that is from the bottom up."</div>
+    <div class="quote-attr">Andy Davidson, Flamingo</div>
+  </div>
+</div>
+
+<!-- Timeline -->
+<div class="section" id="timeline-sec">
+  <div class="section-header">
+    <div class="section-dot brown"></div>
+    <div class="section-title">Evolution of Consumer Insights</div>
+    <div class="section-count">2015 — 2026</div>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2015-2016</div>
+      <div class="timeline-text"><strong>Foundation era.</strong> Focus on brand tracking fundamentals, concept testing methodologies, and the "7 Deadly Sins" of marketing that frustrate consumers. The future of insights begins to be questioned.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2017</div>
+      <div class="timeline-text"><strong>Digital transformation accelerates.</strong> Social listening emerges as critical. VR shows promise for accessing subconscious consumer responses. 11,000+ Europeans surveyed on data-driven advertising attitudes. Cultural insight gains recognition.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2018-2019</div>
+      <div class="timeline-text"><strong>Measurement matures.</strong> KPI frameworks for omnichannel emerge. Research methodologies benchmarked. London Insight Forum shapes global agenda. APAC markets gain focus.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2020</div>
+      <div class="timeline-text"><strong>Pandemic pivots everything.</strong> Customer experience reinvented through behavioral science. E-commerce penetration jumps from 16% to 33% in 3 months. The Economist predicts digital acceleration and corporate leadership expectations surge — 80% believe companies drive positive change.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2021-2022</div>
+      <div class="timeline-text"><strong>Inclusive insights emerge.</strong> Consumer happiness linked to brand success. Chinese brand growth reshapes global markets. ESOMAR calls for inclusive research samples and accessible methodologies. DEI enters the insights agenda.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2023</div>
+      <div class="timeline-text"><strong>Generative AI enters.</strong> WFA benchmarks ROI measurement, core competencies, and consumer intimacy. Generative AI positioned as a decision-support tool. Cultural understanding recognized as "messy but essential."</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2024</div>
+      <div class="timeline-text"><strong>Strategic transformation.</strong> New rules defined: insights teams must move from operational to business-critical. Kantar's Brand Inclusion Index launches across 18 countries. Five dramatic shifts identified in how insight functions operate. AI adoption surveyed: only 3% fully embedded.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">2025-2026</div>
+      <div class="timeline-text"><strong>Inclusive by design, strategic by necessity.</strong> WFA publishes practical framework for embedding inclusion across the research lifecycle. Insight Forum triples to 600+ leaders. Insights partnerships emerge: 52% view insights as strategic, but 48% still see it as tactical. 75% formalize training with storytelling as the "anchor skill." Career development and pipeline support become strategic imperatives.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="section" id="data">
+  <div class="section-header">
+    <div class="section-dot mustard"></div>
+    <div class="section-title">Key Data Points</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px;">
+    <div class="chart-container">
+      <div class="chart-title">AI Adoption in Insights Functions</div>
+      <div class="chart-wrap"><canvas id="chartAI"></canvas></div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">Business Impact of Inclusive Advertising</div>
+      <div class="chart-wrap"><canvas id="chartDEI"></canvas></div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">Insights Function Maturity</div>
+      <div class="chart-wrap"><canvas id="chartMaturity"></canvas></div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">Articles by Theme (42 total)</div>
+      <div class="chart-wrap"><canvas id="chartThemes"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- All Articles -->
+<div class="section" id="articles">
+  <div class="section-header">
+    <div class="section-dot golden"></div>
+    <div class="section-title">All Articles</div>
+    <div class="section-count" id="articleCount">42 articles</div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all')">All</button>
+    <button class="filter-btn" onclick="filterCards('ai')">AI & Technology</button>
+    <button class="filter-btn" onclick="filterCards('dei')">Inclusive Insights</button>
+    <button class="filter-btn" onclick="filterCards('teams')">Insights Teams</button>
+    <button class="filter-btn" onclick="filterCards('benchmark')">Benchmarks</button>
+    <button class="filter-btn" onclick="filterCards('culture')">Consumer & Culture</button>
+    <button class="filter-btn" onclick="filterCards('forum')">Forums & Events</button>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Synthesized from <a href="https://wfanet.org/knowledge/overview?weblog-tag=Consumer+insight" target="_blank">WFA Knowledge Hub</a> — Consumer Insight tag, Pages 1 & 2</p>
+  <p style="margin-top: 6px; opacity: 0.7;">42 articles spanning 2015-2026 &middot; Generated March 2026</p>
+</footer>
+
+<script>
+// ── Article Data ──
+const articles = [
+  {
+    id: 1, cat: "dei", tag: "Inclusive Insights", date: "Feb 2026",
+    title: "WFA Launches Guide to Inclusive Insights",
+    excerpt: "A practical framework to embed inclusion into consumer research, data interpretation and strategic decision-making across the entire research lifecycle.",
+    body: `<h3>Overview</h3><p>WFA released a new practical guide for senior marketers and consumer insights leaders to embed inclusion throughout research processes — from audience definition to measurement and strategic decision-making.</p><h3>Core Framework</h3><p>The guide spans the <strong>entire research lifecycle</strong>, encouraging brands to move beyond demographic assumptions and embrace intersectional perspectives reflecting real-world experiences. Created collaboratively with WFA's Inclusive Marketing Community, Insight Forum members, and external experts.</p><h3>Key Quotes</h3><ul><li><strong>Susan Akkad (Estee Lauder):</strong> "Inclusive insights are foundational for better marketing...Deeper understanding can only be achieved by designing inclusive insights learning plans up front."</li><li><strong>Ashley Anzie (LEGO Group):</strong> "Everyone has the opportunity to feel seen and heard by brands they love."</li><li><strong>Elaine Tam (Diageo):</strong> "Brands need empathy...Asking the right questions and including representative consumers is key."</li></ul><h3>Impact</h3><p><span class="stat-highlight">60%</span> of 2024 Cannes Lions Grand Prix Winners incorporated inclusion as a core campaign element.</p>`,
+    url: "https://wfanet.org/knowledge/item/2026/02/16/wfa-launches-guide-to-inclusive-insights-to-help-strengthen-consumer-understanding"
+  },
+  {
+    id: 40, cat: "teams", tag: "Insights Teams", date: "Nov 2025",
+    title: "What's Best Practice for Training Insights Teams?",
+    excerpt: "75% of organizations maintain formal training programs. Storytelling identified as the anchor skill blending creativity, influence, and business strategy.",
+    body: `<h3>Key Findings</h3><p><strong>Storytelling</strong> is identified as "the anchor skill — a skill that blends creativity, influence, and business strategy."</p><h3>Training Landscape</h3><ul><li><span class="stat-highlight">75%</span> of surveyed organizations maintain formal training programs for insights functions</li><li>Training interests are shifting toward <strong>AI literacy</strong> and <strong>data-driven storytelling</strong></li></ul><h3>Topics Covered</h3><ul><li>Balance between internal vs. external training resources</li><li>Vendor selection and utilization</li><li>Training format preferences</li><li>Program effectiveness measurement</li></ul><p>WFA members can benchmark their individual training programs against industry standards through the Stravito platform.</p>`,
+    url: "https://wfanet.org/knowledge/item/2025/11/19/what-s-best-practice-for-training-insights-teams"
+  },
+  {
+    id: 41, cat: "teams", tag: "Insights Teams", date: "Oct 2025",
+    title: "5 Lessons for Building an Impactful Career in Insights",
+    excerpt: "60+ senior leaders from 40+ companies: growth comes through discomfort, storytelling connects all career stages, and pipeline needs community.",
+    body: `<h3>Overview</h3><p>Drawn from discussions among <strong>60+ senior insights leaders</strong> from <strong>40+ WFA member companies</strong>. Career progression in insights is rarely linear and requires adaptation across multiple disciplines.</p><h3>Five Key Lessons</h3><ol><li><strong>Varied Role Creates Structural Tension</strong> — Unclear definitions of whether teams focus on data delivery, foresight, or strategy. This leaves professionals stretched thin and insights struggling for recognition as a strategic driver.</li><li><strong>Senior Growth Comes Through Discomfort</strong> — Leadership advancement involves lateral moves, stretch assignments, and stepping outside expertise areas. Success means <strong>impact rather than hierarchy</strong>. Leaders should define their personal "North Star."</li><li><strong>Rising Talent Seeks Visibility and Sponsorship</strong> — Emerging professionals face tension between "doing" and "leading." Mentors encourage proactive visibility: "Don't wait for permission. Put your hand up."</li><li><strong>Storytelling Connects All Career Stages</strong> — Both senior and emerging talent must demonstrate strategic value through compelling narratives that inspire action, not merely deliver analysis.</li><li><strong>Pipeline Needs Support and Community</strong> — Organizations should create stretch roles, mentorship structures, commercial fluency development, and recognize non-linear career paths.</li></ol><h3>Notable Quote</h3><p><strong>Valerie Chevalier (PepsiCo):</strong> "As your career advances, leadership skills become not just valuable but essential."</p>`,
+    url: "https://wfanet.org/knowledge/item/2025/10/22/5-lessons-for-building-an-impactful-career-in-insights"
+  },
+  {
+    id: 2, cat: "forum", tag: "Forum & Events", date: "Jul 2025",
+    title: "Insight Forum: Leaders of Tomorrow",
+    excerpt: "32 mid-career insights professionals explored leadership development — navigating ambiguity, influence without authority, and championing AI initiatives.",
+    body: `<h3>Session Overview</h3><p>WFA hosted a remote Insight Forum meeting as part of their "Insights Career Management" mini-series. <strong>32 mid-career professionals</strong> gathered to discuss growing leadership impact from the middle of the function.</p><h3>Topics Explored</h3><ul><li>Navigating ambiguity and influence without authority</li><li>Maintaining connection to purpose in complex roles</li><li>Setting clearer boundaries and leading with values</li><li>Championing AI initiatives</li><li>Reframing career success</li></ul><p>Four senior mentors facilitated breakout conversations, surfacing practical tactics and reflective provocations for next-generation leadership.</p>`,
+    url: "https://wfanet.org/knowledge/item/2025/07/16/insight-forum-meeting-overview-leaders-of-tomorrow-(jul-2025)"
+  },
+  {
+    id: 42, cat: "teams", tag: "Insights Teams", date: "Apr 2025",
+    title: "The Rise of Insights Partnerships",
+    excerpt: "52% view insights as strategic partners, but 48% still see it as tactical support. 86% believe long-term strategy is the biggest opportunity for CMI.",
+    body: `<h3>Current State</h3><ul><li><span class="stat-highlight">52%</span> of organizations view insights as strategic partners</li><li><span class="stat-highlight">48%</span> of stakeholders still regard the function as merely tactical support or data providers</li><li><strong>58%</strong> identify senior leadership as needing stronger collaboration</li><li><strong>55%</strong> point to product development teams</li><li><strong>52%</strong> mention IT/data science departments</li></ul><h3>Key Challenges</h3><ul><li>Limited resources — <strong>52%</strong></li><li>Communication gaps — <strong>41%</strong></li><li>Data overload without actionable insights — <strong>41%</strong></li></ul><h3>Strategic Opportunity</h3><p><span class="stat-highlight">86%</span> of insights leaders believe long-term strategy represents the most significant opportunity. Additional growth areas: product innovation (<strong>66%</strong>) and market expansion (<strong>62%</strong>).</p><h3>Four Levers for Change</h3><ol><li><strong>Secure Leadership Sponsorship</strong> — Executive backing to amplify influence at senior decision-making levels</li><li><strong>Define Clear KPIs Beyond Satisfaction</strong> — Measure decision influence, revenue growth, and strategic outcomes</li><li><strong>Invest in Capability Building</strong> — Storytelling, leadership influence, and strategic thinking</li><li><strong>Balance AI with Human Insight</strong> — Frameworks where AI supports rather than replaces human judgment</li></ol><h3>Effectiveness</h3><p>In-person or virtual presentations (<strong>86%</strong>) are the most effective visibility strategy. Embedding insights professionals into other functions (<strong>57%</strong>) and cross-functional workshops (<strong>57%</strong>) also drive integration.</p><p><em>"The future of the function lies in moving beyond data delivery to driving strategic outcomes."</em></p>`,
+    url: "https://wfanet.org/knowledge/item/2025/04/18/the-rise-of-insights-partnerships"
+  },
+  {
+    id: 3, cat: "forum", tag: "Forum & Events", date: "Nov 2024",
+    title: "Knowledge Spotlight: Sponsorship Strategy 101",
+    excerpt: "Practical webinar for emerging marketing leaders covering foundational sponsorship strategy concepts in the Asia Pacific region.",
+    body: `<h3>Overview</h3><p>Part of WFA's practical webinar series "Knowledge Spotlights" offering 101 sessions on modern marketing foundations relevant to Asia Pacific. Featuring <strong>Ian Malcolm</strong>, President and CEO of Lumency Inc., discussing the Evolution of Sponsorship.</p><p>Targeted at junior to mid-level marketing professionals building their competencies across brand purpose, agency management, creativity, influencer marketing, and marketing effectiveness.</p>`,
+    url: "https://wfanet.org/knowledge/item/2024/11/08/knowledge-spotlight-sponsorship-strategy-101"
+  },
+  {
+    id: 4, cat: "ai", tag: "AI & Technology", date: "Oct 2024",
+    title: "How AI Could Augment Human Insights",
+    excerpt: "Only 3% have fully embedded AI. 94% say it enables faster decisions. A landmark survey of 36 senior leaders representing $60B in ad spend.",
+    body: `<h3>The Central Premise</h3><p>"AI applied right will act as an insights enabler: <strong>augmenting, not replacing</strong>, the human expertise."</p><h3>Key Findings</h3><ul><li><span class="stat-highlight">3%</span> have fully embedded AI into insights practices</li><li><span class="stat-highlight">47%</span> use AI for specific tasks only</li><li><span class="stat-highlight">71%</span> rely on external vendors for AI solutions</li><li><span class="stat-highlight">94%</span> agree AI enables faster insights and decisions</li><li><span class="stat-highlight">69%</span> identify enhanced operational efficiency</li></ul><h3>Barriers</h3><ul><li>Data privacy concerns — <strong>52%</strong></li><li>Budget constraints — <strong>48%</strong></li><li>Regulatory concerns — <strong>33%</strong></li><li>Skill gaps in the workforce</li></ul><h3>Looking Ahead</h3><p><span class="stat-highlight">27%</span> believe prompt engineering will become essential. <strong>46%</strong> plan to upskill existing teams. Survey covered 36 senior leaders from 33 multinationals representing <strong>$60 billion</strong> in combined marketing spend.</p>`,
+    url: "https://wfanet.org/knowledge/item/2024/10/01/how-ai-could-augment-human-insights"
+  },
+  {
+    id: 5, cat: "dei", tag: "Inclusive Insights", date: "Jul 2024",
+    title: "Inclusion Is the Future for Brand Growth",
+    excerpt: "Kantar's Brand Inclusion Index: progressive advertising delivers +16.3% long-term sales. Only 23% of people globally feel well-represented by advertisers.",
+    body: `<h3>Kantar Brand Inclusion Index (2024)</h3><p>First-ever global index: <strong>18 countries, 20,000+ participants</strong>. Google named most inclusive global brand.</p><h3>Business Impact of Progressive Advertising</h3><ul><li><span class="stat-highlight">+3.46%</span> direct short-term sales increase</li><li><span class="stat-highlight">+16.26%</span> greater long-term sales</li><li><span class="stat-highlight">+29%</span> increased loyalty/repurchase intent</li><li><span class="stat-highlight">+43%</span> higher purchase consideration</li><li><span class="stat-highlight">+52%</span> greater pricing power</li></ul><h3>The Gap</h3><p>Only <span class="stat-highlight">23%</span> of global population feel "always" well-represented. <strong>46%</strong> experienced discrimination in the past year, with <strong>72%</strong> of incidents in business settings. Nearly <strong>8 in 10</strong> people consider DEI when making purchases.</p><h3>Brand Leaders</h3><ul><li>Most Inclusive Global Brand: <strong>Google</strong></li><li>Women: <strong>Dove</strong></li><li>LGBTQ+: <strong>Nike</strong></li><li>Disabilities/Neurodiversity: <strong>Google</strong></li></ul>`,
+    url: "https://wfanet.org/knowledge/item/2024/07/22/inclusion-is-the-future-for-brand-growth"
+  },
+  {
+    id: 6, cat: "teams", tag: "Insights Teams", date: "Jul 2024",
+    title: "Every Brand Needs a Stronger Insight Function",
+    excerpt: "Five dramatic shifts over three years: agility, data integration, stakeholder management, ROI measurement, and deep expertise with emotional intelligence.",
+    body: `<h3>Five Dramatic Shifts</h3><ol><li><strong>Agility & Real-Time Insights</strong> — Social listening and advanced analytics for up-to-date consumer sentiment</li><li><strong>Data & Technology Integration</strong> — Self-service platforms, AI-driven analytics, automated processes</li><li><strong>Communication & Stakeholder Management</strong> — Building strong relationships with stakeholders aligned to business goals</li><li><strong>ROI & Marketing Effectiveness</strong> — Metrics like ROI, market share, and brand equity to validate contributions</li><li><strong>Deep Expertise & Emotional Intelligence</strong> — Subject matter experts leading learning while EQ builds trust</li></ol><h3>Forum Growth</h3><p>The WFA Insight Forum has <strong>tripled to 600+ leaders</strong> from 120+ organizations, co-chaired by Visa and IKEA.</p>`,
+    url: "https://wfanet.org/knowledge/item/2024/07/22/every-brand-needs-a-stronger-insight-function"
+  },
+  {
+    id: 7, cat: "teams", tag: "Insights Teams", date: "Jan 2024",
+    title: "The New Rules for Successful Insights Teams",
+    excerpt: "70 senior leaders, $50B ad spend: only 9% consider themselves 'well advanced.' Two-thirds restructured in 3 years. A roadmap for maximum impact.",
+    body: `<h3>Current State</h3><ul><li><span class="stat-highlight">14%</span> in early stages</li><li><span class="stat-highlight">41%</span> progressing well</li><li><span class="stat-highlight">9%</span> consider themselves "well advanced"</li><li>Two-thirds restructured in the past 3 years</li></ul><h3>Reporting Gap</h3><p><strong>66%</strong> report to the CMO; only <strong>20%</strong> report to C-suite. But <strong>60%</strong> desire direct C-suite reporting.</p><h3>Collaboration Challenges</h3><p>Seven in ten have insights and data science as separate teams. <strong>50%</strong> share minimal resources. Half say collaboration with R&D, media, and data science "can be improved."</p><h3>Talent Gap</h3><p>While <strong>72%</strong> note varied skill sets, <strong>43%</strong> say career development is not available for their teams.</p><h3>Six Priority Areas</h3><ol><li>Generating business impact through proactive advisory roles</li><li>Understanding the maturity journey</li><li>Optimizing reporting relationships</li><li>Integrating data science and human insights</li><li>Improving operational efficiency and creativity</li><li>Closing talent management gaps</li></ol>`,
+    url: "https://wfanet.org/knowledge/item/2024/01/23/The-new-rules-for-successful-insights-teams"
+  },
+  {
+    id: 8, cat: "benchmark", tag: "Benchmark", date: "Dec 2023",
+    title: "Benchmark: Measuring the ROI of Insights",
+    excerpt: "25 members from 25 companies examined how to measure and demonstrate the return on investment of consumer insights and analytics functions.",
+    body: `<h3>Study Scope</h3><p><strong>25 members from 25 companies</strong> participated in this benchmark examining seven critical areas:</p><ol><li>Current measurement methods for insights impact on business performance</li><li>How consumer insights contribute to long-term organizational growth</li><li>Future investment opportunities yielding higher ROI</li><li>Expected evolution of insights roles in growth strategies</li><li>Areas where increased investment could drive success</li><li>Strategies for persuading senior management to expand teams</li><li>General peer advice and commentary</li></ol>`,
+    url: "https://wfanet.org/knowledge/item/2023/12/20/Benchmark-Measuring-the-ROI-of-the-Insights-function"
+  },
+  {
+    id: 9, cat: "benchmark", tag: "Benchmark", date: "Dec 2023",
+    title: "Benchmark: Consumer Intimacy Programs",
+    excerpt: "14 member organizations shared perspectives on implementing consumer intimacy programs — from daily application to business impact assessment.",
+    body: `<h3>Research Scope</h3><p><strong>14 member organizations</strong> surveyed on 11 key topics including:</p><ul><li>Program implementation and preferred vendor partners</li><li>Daily application within insights functions</li><li>Operational models: stakeholder access vs. insights filtering</li><li>Communication frequency and format preferences</li><li>Central vs. local organizational approaches</li><li>Effective internal information-sharing strategies</li><li>Business impact assessment</li><li>Influence on internal stakeholders and strategic planning</li></ul>`,
+    url: "https://wfanet.org/knowledge/item/2023/12/20/Benchmark-Consumer-Intimacy-Programs"
+  },
+  {
+    id: 10, cat: "benchmark", tag: "Benchmark", date: "Dec 2023",
+    title: "Benchmark: Insights Core Competencies",
+    excerpt: "12 WFA members identified key skills insights leaders are prioritizing and how competencies have evolved alongside industry changes.",
+    body: `<h3>Research Focus</h3><p><strong>12 WFA members</strong> addressed four primary questions:</p><ol><li>Identifying core competencies currently prioritized and measured</li><li>Predicting how these competencies will develop</li><li>Documenting how competencies evolved alongside industry changes</li><li>Describing tools and methods for tracking and developing competencies</li></ol>`,
+    url: "https://wfanet.org/knowledge/item/2023/12/20/Benchmark-Insights-Core-Competencies"
+  },
+  {
+    id: 11, cat: "benchmark", tag: "Benchmark", date: "Nov 2023",
+    title: "Benchmark: Consumer Segmentation Partners in APAC",
+    excerpt: "10 WFA members recommended agencies and partners running segmentation services across Cambodia, China, Hong Kong, Indonesia, Japan, and more.",
+    body: `<h3>Scope</h3><p><strong>10 WFA members</strong> contributed recommendations for segmentation services across: Cambodia, China (including Greater Bay Area), Hong Kong, Indonesia, Japan, Malaysia, Myanmar, Philippines, Singapore, and Vietnam.</p><h3>Coverage</h3><ul><li>Recommended partners for market segmentation work</li><li>Segment size, value, and market share data</li><li>Practical advice for conducting segmentation studies in APAC markets</li></ul>`,
+    url: "https://wfanet.org/knowledge/item/2023/11/14/Benchmark-Consumer-segmentation-partners-in-APAC"
+  },
+  {
+    id: 12, cat: "ai", tag: "AI & Technology", date: "Sep 2023",
+    title: "Spark More Insights-Driven Decisions with Generative AI",
+    excerpt: "\"Generative AI can't make big decisions for you, but it can help you make better decisions.\"",
+    body: `<h3>Key Message</h3><p>"Generative AI can't make big decisions for you, but it can <strong>help you make better decisions</strong>."</p><p>This spotlight video explores how generative AI serves as a valuable tool for improving the quality of strategic choices — while acknowledging that AI cannot replace human judgment in marketing insights work.</p>`,
+    url: "https://wfanet.org/knowledge/item/2023/09/28/Spotlight-Spark-more-insights-driven-decisions-with-generative-AI"
+  },
+  {
+    id: 13, cat: "culture", tag: "Consumer & Culture", date: "Jun 2023",
+    title: "Embracing the Messiness of Culture",
+    excerpt: "\"Culture is messy, misunderstood and hard to pin down. But its impact on marketing and communications is far too huge to ignore.\"",
+    body: `<h3>Core Message</h3><p>"Culture is messy, misunderstood and hard to pin down. But its impact on marketing and communications is <strong>far too huge to ignore</strong>."</p><p>This spotlight piece addresses culture's critical role in marketing strategy, arguing that despite its complexity, brands that embrace cultural understanding gain significant competitive advantage.</p>`,
+    url: "https://wfanet.org/knowledge/item/2023/06/30/Spotlight-Embracing-the-messiness-of-culture"
+  },
+  {
+    id: 14, cat: "dei", tag: "Inclusive Insights", date: "Nov 2022",
+    title: "Consumer Insights Needs an Inclusive Approach Too",
+    excerpt: "ESOMAR's Corinne Moy: brands must ensure research captures insights from everyone, not just convenience samples. Four critical areas defined.",
+    body: `<h3>The Argument</h3><p>Brands must ensure their consumer insights come from <strong>everyone</strong>, not just convenience samples. "Inclusion is a huge driver of business success and innovation."</p><h3>Four Critical Areas</h3><ol><li><strong>Inclusive Samples</strong> — Go beyond age/gender/SES balancing. Use quotas and boost samples for underrepresented groups (ethnic, LGBTQ+, disability communities).</li><li><strong>Accessible Research Methods</strong> — Short, direct surveys. WCAG 2.0 compliance. Surveys in relevant languages with "Prefer not to say" options.</li><li><strong>Building Agency Expertise</strong> — Develop rosters of experienced inclusive research agencies. "Cheap online panels won't deliver."</li><li><strong>Proper Analysis</strong> — Use research association guidelines. Ensure diverse teams conduct analysis to minimize bias.</li></ol>`,
+    url: "https://wfanet.org/knowledge/item/2022/11/29/Consumer-Insights-needs-an-inclusive-approach-too"
+  },
+  {
+    id: 15, cat: "forum", tag: "Forum & Events", date: "Nov 2022",
+    title: "Media Forum Meeting Overview (Oct 2022)",
+    excerpt: "WFA Media Forum meeting featuring Adam Wright (Nivea) and Tom Ollerton, covering content innovation, marketing effectiveness, and data-driven marketing.",
+    body: `<h3>Event Details</h3><p>WFA Media Forum held October 20, 2022. Featured <strong>Adam Wright</strong> (Head of Digital, Nivea) alongside guest <strong>Tom Ollerton</strong>. Topics covered included content & innovation, marketing effectiveness, marketing strategy, marketing technology, and data-driven marketing.</p>`,
+    url: "https://wfanet.org/knowledge/item/2022/11/15/Media-Forum-Meeting-Overview-20th-October-2022"
+  },
+  {
+    id: 16, cat: "culture", tag: "Consumer & Culture", date: "Oct 2022",
+    title: "How Do You Translate Happiness into Brand Success?",
+    excerpt: "Current and future events change how consumers define happiness. Brands must understand well-being factors and implement values-driven initiatives.",
+    body: `<h3>Core Insight</h3><p>"Current and future events, like the global pandemic and ongoing unrest in Ukraine, may change how consumers define happiness."</p><p>Organizations must understand the factors contributing to consumer well-being and implement <strong>values-driven initiatives</strong> that resonate with their audiences to drive brand success.</p>`,
+    url: "https://wfanet.org/knowledge/item/2022/10/06/Spotlight-How-do-you-translate-happiness-into-brand-success"
+  },
+  {
+    id: 17, cat: "culture", tag: "Consumer & Culture", date: "Jan 2022",
+    title: "The Rise of Chinese Brands",
+    excerpt: "Explanations behind the rise of Chinese brands and why it is important to businesses in and outside of China.",
+    body: `<h3>Overview</h3><p>This spotlight examines the growth dynamics of Chinese brands and their implications for global businesses, covering the factors driving Chinese brand expansion and why this matters for companies operating both inside and outside of China.</p>`,
+    url: "https://wfanet.org/knowledge/item/2022/01/21/Spotlight-The-Rise-of-Chinese-brands-Why-is-it-important-for-businesses-in-and-outside-of-China"
+  },
+  {
+    id: 18, cat: "forum", tag: "Forum & Events", date: "Oct 2021",
+    title: "Insight Forum Overview (October 2021)",
+    excerpt: "WFA Insight Forum remote session covering market research, influencer marketing, marketing strategy, and agency partnerships.",
+    body: `<h3>Meeting Summary</h3><p>Remote Insight Forum meeting held <strong>October 13, 2021</strong> covering market research, influencer marketing, marketing strategy, consumer insight, and agency partnerships. Part of WFA's ongoing forum program connecting insights leaders globally.</p>`,
+    url: "https://wfanet.org/knowledge/item/2021/10/24/Insight-Forum-Overview-October-2021"
+  },
+  {
+    id: 19, cat: "culture", tag: "Consumer & Culture", date: "Oct 2020",
+    title: "Top Take-Outs: The World in 2021 with The Economist",
+    excerpt: "Six predictions: vaccine diplomacy, China's resilience, corporate leadership (80% believe companies drive positive change), and e-commerce jumping from 16% to 33%.",
+    body: `<h3>Six Key Takeaways</h3><ol><li><strong>Vaccine Distribution Challenges</strong> — Expect vaccine nationalism. "Every American wearing a mask could save the US economy $56."</li><li><strong>China's Resilience</strong> — Projected to rebound to pre-pandemic forecasts, potentially surpassing combined EU economies. Stock market share rising from 13% to 17%.</li><li><strong>Geopolitical Polarization</strong> — A "new world disorder" forces companies to navigate US-China tensions beyond defense sectors.</li><li><strong>Corporate Leadership</strong> — <span class="stat-highlight">80%</span> believe companies drive positive change. <strong>72%</strong> trust corporations over government. <strong>70%</strong> demand CEO social advocacy.</li><li><strong>Digital Acceleration</strong> — E-commerce went from <span class="stat-highlight">16% to 33%</span> in three months — a transformation expected to take a decade.</li><li><strong>Climate Urgency</strong> — Pandemic emissions reductions insufficient; sustained 100% cuts needed.</li></ol>`,
+    url: "https://wfanet.org/knowledge/item/2020/10/14/Top-take-outs-from-The-World-in-2021-with-The-Economist"
+  },
+  {
+    id: 20, cat: "forum", tag: "Forum & Events", date: "Oct 2020",
+    title: "Webinar: The Economist Presents The World in 2021",
+    excerpt: "Tom Standage shares key insights from the upcoming Economist report — predictive analysis of the year ahead.",
+    body: `<h3>Overview</h3><p>Webinar featuring <strong>Tom Standage</strong>, The Economist's Deputy Editor, sharing key insights and predictive analysis from the upcoming annual report on global trends and outlook.</p>`,
+    url: "https://wfanet.org/knowledge/item/2020/10/08/Webinar-The-Economist-presents-The-World-in-2021"
+  },
+  {
+    id: 21, cat: "culture", tag: "Consumer & Culture", date: "Jul 2020",
+    title: "Customer Experience in the World's \"New Normal\"",
+    excerpt: "Behavioral science strategies: reframe value, make hygiene visible, create peak-end moments, and build trust through actions.",
+    body: `<h3>The Crisis Impact</h3><p>The pandemic created painful moments: missing products, refund disputes, longer wait times, and frustrating digital journeys.</p><h3>Four Behavioral Science Strategies</h3><ol><li><strong>Reframing Value, Reshaping Habits</strong> — Understand new needs, onboard customers into "new normal routines," re-engage employees.</li><li><strong>Making the Invisible Visible</strong> — Manage expectations, make hygiene salient, show "safety cues along the journey," set new quality standards.</li><li><strong>Creating Positive Peak and End Moments</strong> — Leverage peak-end effect: "magic moments" through personal attention and staff empowerment vs. "tragic moments" of tone-deaf communication.</li><li><strong>Building Trust Through Actions</strong> — Prioritize customer interests over profits. Be "truly helpful" to customers, employees, and communities.</li></ol>`,
+    url: "https://wfanet.org/knowledge/item/2020/07/14/Customer-experience-in-the-worlds-new-normal"
+  },
+  {
+    id: 22, cat: "culture", tag: "Consumer & Culture", date: "May 2020",
+    title: "Webinar+: Customer Experience in the New Normal",
+    excerpt: "How simple 'nudges' enhance user/shopper emotional journeys, facilitate choice, and improve loyalty.",
+    body: `<h3>Overview</h3><p>This webinar explores how simple <strong>"nudges"</strong> — rooted in behavioral science — generate opportunities in enhancing the user/shopper emotional journey, facilitating choice, and improving loyalty in the Asia-Pacific region.</p>`,
+    url: "https://wfanet.org/knowledge/item/2020/05/04/Webinar-Customer-Experience-in-the-New-Normal"
+  },
+  {
+    id: 23, cat: "culture", tag: "Consumer & Culture", date: "Apr 2020",
+    title: "How Advertising Lost Sight of Creativity",
+    excerpt: "Orlando Wood's 'Lemon' thesis: neuroscience meets cultural history. Left-brain thinking is undermining creative effectiveness.",
+    body: `<h3>Core Thesis</h3><p>System1's Orlando Wood introduces his book <em>'Lemon: How the Advertising Brain Turned Sour'</em> — a fascinating mix of <strong>neuroscience, cultural history, and advertising research</strong>.</p><p>The central argument: increased abstract, left-brain thinking has spread across business sectors, undermining creative effectiveness in advertising. The webinar offers practical solutions to reverse this decline.</p>`,
+    url: "https://wfanet.org/knowledge/item/2020/04/02/Webinar-How-advertising-lost-sight-of-creativity-and-what-to-do-about-it"
+  },
+  {
+    id: 24, cat: "forum", tag: "Forum & Events", date: "Dec 2019",
+    title: "Insight Forum Meeting Overview (December 2019)",
+    excerpt: "Overview of the Insight Forum meeting held December 4, 2019 in London, covering data management, market research, and agency evaluation.",
+    body: `<h3>Meeting Details</h3><p>Insight Forum meeting held <strong>December 4, 2019 in London</strong>. Topics covered: data management, market research, advertising policy, media analytics, consumer insight, and agency evaluation.</p>`,
+    url: "https://wfanet.org/knowledge/item/2019/12/06/Insight-Forum-meeting-overview-December-2019"
+  },
+  {
+    id: 25, cat: "benchmark", tag: "Benchmark", date: "Jun 2018",
+    title: "Tutorial: Key Performance Indicator",
+    excerpt: "UPA guide supporting advertisers in quantifying omnichannel communication results, covering KPI frameworks and practical applications.",
+    body: `<h3>Overview</h3><p>Commissioned by <strong>UPA</strong> (the Italian Advertisers association), this tutorial supports advertisers in quantifying omnichannel communication results. It covers KPI frameworks, measurement methodologies, and practical applications for media analytics across European markets.</p>`,
+    url: "https://wfanet.org/knowledge/item/2018/06/14/Tutorial-Key-Performance-Indicator"
+  },
+  {
+    id: 26, cat: "benchmark", tag: "Benchmark", date: "Jun 2018",
+    title: "Benchmark: Marketing Research Methodologies",
+    excerpt: "WFA member benchmark examining current marketing research methodologies and best practices across member organizations.",
+    body: `<h3>Overview</h3><p>WFA member benchmark examining current marketing research methodologies and best practices. Covers approaches to market research across the WFA member network.</p>`,
+    url: "https://wfanet.org/knowledge/item/2018/06/08/Benchmark-on-marketing-research-methodologies"
+  },
+  {
+    id: 27, cat: "benchmark", tag: "Benchmark", date: "May 2018",
+    title: "Benchmark: Agency Recommendation, India",
+    excerpt: "WFA member resource for lifestyle communications and quantitative product research agency partner recommendations in India.",
+    body: `<h3>Overview</h3><p>WFA member benchmark providing agency partner recommendations for <strong>lifestyle communications and quantitative product research</strong> in India. Part of the Insight Forum's ongoing peer recommendation service.</p>`,
+    url: "https://wfanet.org/knowledge/item/2018/05/07/Benchmark-Agency-recommendation-India-Lifestyle-communications-quantitative-product-research"
+  },
+  {
+    id: 28, cat: "teams", tag: "Insights Teams", date: "Nov 2017",
+    title: "Creating a Culture of Insights",
+    excerpt: "\"If you are not 'in charge,' culture can only change from the bottom up.\" Three strategies: think like a subculture, focus on contagious diffusion, accept time.",
+    body: `<h3>Core Premise</h3><p>"If you are not 'in charge' in your organisation, there is only one way culture can change — and that is <strong>from the bottom up</strong>."</p><h3>Three Strategic Approaches</h3><ol><li><strong>Think Like a Subculture</strong> — Stop waiting for senior sponsorship. Develop team values, identity, language, tools, and practices. Amplify outward from there.</li><li><strong>Focus on Contagious Diffusion</strong> — Ideas spread when colleagues recognize value. Practical tactics:<ul><li>Share customer call recordings</li><li>Mandate direct customer interactions</li><li>Develop consumer immersion experiences</li><li>Create company-wide insight summits</li><li>Identify internal advocates in key markets</li><li>Invest in junior employees during onboarding</li></ul></li><li><strong>Accept Timeline Realities</strong> — "Culture is hard to change. It will take time and effort and it will require a lot of resilience."</li></ol>`,
+    url: "https://wfanet.org/knowledge/item/2017/11/06/Creating-a-culture-of-insights"
+  },
+  {
+    id: 29, cat: "ai", tag: "AI & Technology", date: "Sep 2017",
+    title: "Real Insight from a Virtual Reality",
+    excerpt: "VR offers one-third the cost of physical prototypes. Heineken: 'Context is king.' System1: VR bypasses conscious decision-making.",
+    body: `<h3>Three Case Studies</h3><ol><li><strong>Intage & Coca-Cola</strong> — VR prototype testing at approximately <span class="stat-highlight">one-third the cost and timeframe</span> of physical prototypes, with easier transportation to test locations.</li><li><strong>Heineken & Haystack</strong> — "Context is king." Branded beer performed differently in bar settings vs. lab environments. VR reveals how context shapes consumer preferences beyond raw data.</li><li><strong>System1 & Hershey's</strong> — VR bypasses conscious decision-making, accessing System 1 thinking. In-store VR simulations revealed that <strong>brand priming could actually reduce sales</strong> by triggering deliberate thinking rather than instinctive responses.</li></ol><h3>Significance</h3><p>VR offers access to <strong>System 1 thinking</strong> — the fast, instinctive cognition identified by Daniel Kahneman — that many traditional methods cannot reach.</p>`,
+    url: "https://wfanet.org/knowledge/item/2017/09/18/Real-insight-from-a-virtual-reality"
+  },
+  {
+    id: 30, cat: "benchmark", tag: "Benchmark", date: "Sep 2017",
+    title: "Data-Driven Advertising and Europeans' Internet Use",
+    excerpt: "2017 survey of 11,000+ internet users across 11 EU countries examining attitudes toward targeted advertising and data collection.",
+    body: `<h3>Research Scope</h3><p>Survey of <strong>11,000+ internet users across 11 EU countries</strong> examining three dimensions:</p><ol><li><strong>Online Content Consumption</strong> — Types of digital content accessed</li><li><strong>Attitudes Toward Data-Driven Advertising</strong> — Perspectives on personalized advertising and data collection</li><li><strong>Alternative Payment Models</strong> — Willingness to pay for content vs. accepting ad-supported services</li></ol><p>Produced by EDAA and IAB, this research provided foundational data on European consumer attitudes toward the evolving digital advertising ecosystem.</p>`,
+    url: "https://wfanet.org/knowledge/item/2017/09/08/Europe-research-Data-driven-advertising-and-Europeans-internet-use"
+  },
+  {
+    id: 31, cat: "benchmark", tag: "Benchmark", date: "Jul 2017",
+    title: "Webinar: Keeping the Brand Tracking Love Alive",
+    excerpt: "Partnership with Hall & Partners exploring innovations and new approaches to maintaining effective brand tracking programs.",
+    body: `<h3>Overview</h3><p>Webinar in partnership with <strong>Hall & Partners</strong>, sharing their experience of evolving brand tracking approaches with clients. Explores how to keep brand tracking relevant, effective, and actionable in a rapidly changing market research landscape.</p>`,
+    url: "https://wfanet.org/knowledge/item/2017/07/07/Webinar-Keeping-the-brand-tracking-love-alive"
+  },
+  {
+    id: 32, cat: "culture", tag: "Consumer & Culture", date: "Jun 2017",
+    title: "Turning Uncertainty to Advantage",
+    excerpt: "Flamingo & DDB partnership: how brands can win against a backdrop of major political and social change.",
+    body: `<h3>Overview</h3><p>Webinar partnership between <strong>Flamingo and DDB</strong> exploring how brands can succeed amid significant political and social upheaval. Addresses strategies for turning uncertainty into competitive advantage through deeper consumer understanding.</p>`,
+    url: "https://wfanet.org/knowledge/item/2017/06/22/Webinar-Turning-uncertainty-to-advantage"
+  },
+  {
+    id: 33, cat: "benchmark", tag: "Benchmark", date: "Mar 2017",
+    title: "Survey: Social Listening Tools, Techniques & Challenges",
+    excerpt: "WFA member benchmark evaluating social media monitoring approaches, KPIs, and implementation challenges across the member network.",
+    body: `<h3>Overview</h3><p>WFA member benchmark evaluating <strong>social media monitoring</strong> approaches, key performance indicators, and implementation challenges. Covers audience measurement, data management, and analytics across the Media Forum and Insight Forum communities.</p>`,
+    url: "https://wfanet.org/knowledge/item/2017/03/24/A-survey-on-Social-Listening-Tools-Techniques-Metrics--Challenges"
+  },
+  {
+    id: 34, cat: "ai", tag: "AI & Technology", date: "Jan 2017",
+    title: "10 Steps to Close the Digital Consumer-Business Gap",
+    excerpt: "WFA and Digital Consultancy collaborative framework for aligning businesses with digital consumer expectations.",
+    body: `<h3>Overview</h3><p>Collaborative framework between <strong>WFA and The Digital Consultancy</strong> providing a structured approach to closing the gap between digital consumer expectations and business capabilities. Covers marketing strategy, content innovation, data management, ad tech, and digital media transformation.</p>`,
+    url: "https://wfanet.org/knowledge/item/2017/01/31/10-steps-to-close-the-gap-between-digital-consumers-and-businesses"
+  },
+  {
+    id: 35, cat: "benchmark", tag: "Benchmark", date: "Dec 2016",
+    title: "Benchmark: Testing Big Ideas",
+    excerpt: "How members test big ideas — the frequency of concept testing and the platforms used across member organizations.",
+    body: `<h3>Research Focus</h3><p>WFA benchmark examining:</p><ul><li>How member organizations <strong>test big ideas</strong></li><li>The frequency of concept testing</li><li>The platforms and methodologies used</li></ul><p>Part of the Insight Forum's ongoing peer learning and benchmarking program.</p>`,
+    url: "https://wfanet.org/knowledge/item/2016/12/12/Benchmark-on-testing-big-ideas"
+  },
+  {
+    id: 36, cat: "teams", tag: "Insights Teams", date: "Sep 2016",
+    title: "What Is the Future of Insights?",
+    excerpt: "System1 CEO John Kearon presents findings from the Future of Insights Project — questioning where the function is headed.",
+    body: `<h3>Overview</h3><p><strong>John Kearon</strong>, CEO of System1 (formerly BrainJuicer), presents findings from the <strong>Future of Insights Project</strong> — a forward-looking examination of where the consumer insights function is headed and how it must evolve to remain relevant.</p>`,
+    url: "https://wfanet.org/knowledge/item/2016/09/05/Webinar-What-is-the-future-of-insights"
+  },
+  {
+    id: 37, cat: "benchmark", tag: "Benchmark", date: "Jul 2016",
+    title: "Generating Actionable Insights from Online Communities",
+    excerpt: "WFA-CSpace partnership on emerging trends in managing online communities for consumer insights and market research.",
+    body: `<h3>Overview</h3><p>Webinar partnership between <strong>WFA and CSpace</strong> exploring emerging trends in managing online communities for consumer insights. Covers how to extract actionable insights from community engagement and participation.</p>`,
+    url: "https://wfanet.org/knowledge/item/2016/07/22/Webinar-Generating-actionable-insights-from-online-communities"
+  },
+  {
+    id: 38, cat: "culture", tag: "Consumer & Culture", date: "Mar 2015",
+    title: "7 Deadly Sins of Marketing",
+    excerpt: "Research identifying seven key ways brand marketing most annoys consumers. Presented at WFA Global Marketer Week in Marrakech.",
+    body: `<h3>The Research</h3><p>New research identified the <strong>seven key ways that brand marketing is most likely to annoy consumers</strong>.</p><h3>Presentation</h3><p>Presented at a Project Reconnect session during WFA's <strong>Global Marketer Week in Marrakech</strong> on March 19th, featuring:</p><ul><li><strong>Jon Wilkins</strong> (Executive Chairman, Karmarama) on industry missteps</li><li>African students sharing perspectives on effective vs. ineffective brand marketing</li><li>Interactive panel with industry experts exploring solutions</li></ul><p>Produced in partnership with Karmarama and We Are Social.</p>`,
+    url: "https://wfanet.org/knowledge/item/2015/03/14/7-Deadly-Sins-of-Marketing"
+  },
+  {
+    id: 39, cat: "benchmark", tag: "Benchmark", date: "Jan 2015",
+    title: "Survey on Brand Tracking",
+    excerpt: "Investigation of research investment in brand tracking, consumer intelligence practices, sample sizes, methodology, and pre-testing.",
+    body: `<h3>Overview</h3><p>WFA benchmark survey examining <strong>research investment in brand tracking and consumer intelligence</strong>. Covers survey sample size and methodology, pre-testing, planning, and measurement approaches across the member network.</p>`,
+    url: "https://wfanet.org/knowledge/item/2015/01/15/Survey-on-brand-tracking"
+  }
+];
+
+// ── Render Cards ──
+const grid = document.getElementById('cardsGrid');
+const countEl = document.getElementById('articleCount');
+
+function renderCards(filter) {
+  const filtered = filter === 'all' ? articles : articles.filter(a => a.cat === filter);
+  countEl.textContent = filtered.length + ' article' + (filtered.length !== 1 ? 's' : '');
+  grid.innerHTML = filtered.map(a => `
+    <div class="card" onclick="openModal(${a.id})">
+      <div class="card-tag ${a.cat}">${a.tag}</div>
+      <h3>${a.title}</h3>
+      <div class="card-date">${a.date}</div>
+      <div class="card-excerpt">${a.excerpt}</div>
+      <a class="card-link" href="${a.url}" target="_blank" onclick="event.stopPropagation()">Read on WFA &rarr;</a>
+    </div>
+  `).join('');
+}
+
+function filterCards(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderCards(cat);
+}
+
+renderCards('all');
+
+// ── Modal ──
+function openModal(id) {
+  const a = articles.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="card-tag ${a.cat} modal-tag">${a.tag}</div>
+    <h2>${a.title}</h2>
+    <div class="modal-date">${a.date}</div>
+    <div class="modal-body">${a.body}</div>
+    <a class="modal-source" href="${a.url}" target="_blank">View on WFA &rarr;</a>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Nav Scroll ──
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.querySelector(`.nav-links a[href="#${id}"]`).classList.add('active');
+}
+
+// ── Charts ──
+const chartColors = {
+  olive: '#4E5A2B', brown: '#AC7222', mustard: '#E1B83B',
+  golden: '#D3963E', charcoal: '#2C2C2C', mid: '#6B6B5E',
+  oliveLight: 'rgba(78,90,43,0.15)', brownLight: 'rgba(172,114,34,0.15)',
+  mustardLight: 'rgba(225,184,59,0.2)'
+};
+
+const chartDefaults = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { font: { family: "'Lexend', sans-serif", size: 12 }, padding: 16 } }
+  }
+};
+
+// AI Adoption
+new Chart(document.getElementById('chartAI'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Fully Embedded (3%)', 'Specific Tasks (47%)', 'External Vendors (71%)', 'Not Yet (remaining)'],
+    datasets: [{
+      data: [3, 47, 21, 29],
+      backgroundColor: [chartColors.olive, chartColors.brown, chartColors.mustard, '#E0E2D8'],
+      borderWidth: 0
+    }]
+  },
+  options: { ...chartDefaults, cutout: '60%' }
+});
+
+// DEI Impact
+new Chart(document.getElementById('chartDEI'), {
+  type: 'bar',
+  data: {
+    labels: ['Short-term Sales', 'Long-term Sales', 'Loyalty', 'Purchase Intent', 'Pricing Power'],
+    datasets: [{
+      label: 'Lift from Progressive Advertising (%)',
+      data: [3.46, 16.26, 29, 43, 52],
+      backgroundColor: [chartColors.olive, chartColors.olive, chartColors.brown, chartColors.brown, chartColors.mustard],
+      borderRadius: 8, borderSkipped: false
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    plugins: { ...chartDefaults.plugins, legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#E0E2D8' }, ticks: { font: { family: "'Lexend', sans-serif", size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { family: "'Lexend', sans-serif", size: 11 } } }
+    }
+  }
+});
+
+// Maturity
+new Chart(document.getElementById('chartMaturity'), {
+  type: 'bar',
+  data: {
+    labels: ['Early Stage', 'Progressing', 'Advanced', 'Well Advanced'],
+    datasets: [{
+      label: '% of Insights Functions',
+      data: [14, 41, 36, 9],
+      backgroundColor: ['#E0E2D8', chartColors.mustard, chartColors.brown, chartColors.olive],
+      borderRadius: 8, borderSkipped: false
+    }]
+  },
+  options: {
+    ...chartDefaults, indexAxis: 'y',
+    plugins: { ...chartDefaults.plugins, legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, grid: { color: '#E0E2D8' }, ticks: { font: { family: "'Lexend', sans-serif", size: 11 } } },
+      y: { grid: { display: false }, ticks: { font: { family: "'Lexend', sans-serif", size: 12 } } }
+    }
+  }
+});
+
+// Themes
+new Chart(document.getElementById('chartThemes'), {
+  type: 'polarArea',
+  data: {
+    labels: ['Consumer & Culture', 'Benchmarks', 'Forum & Events', 'AI & Technology', 'Insights Teams', 'Inclusive Insights'],
+    datasets: [{
+      data: [
+        articles.filter(a => a.cat === 'culture').length,
+        articles.filter(a => a.cat === 'benchmark').length,
+        articles.filter(a => a.cat === 'forum').length,
+        articles.filter(a => a.cat === 'ai').length,
+        articles.filter(a => a.cat === 'teams').length,
+        articles.filter(a => a.cat === 'dei').length
+      ],
+      backgroundColor: [
+        'rgba(211,150,62,0.6)', 'rgba(107,107,94,0.4)', 'rgba(78,90,43,0.3)',
+        'rgba(78,90,43,0.7)', 'rgba(225,184,59,0.5)', 'rgba(172,114,34,0.6)'
+      ],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    scales: { r: { ticks: { display: false }, grid: { color: '#E0E2D8' } } }
+  }
+});
+</script>
+</body>
+</html>
