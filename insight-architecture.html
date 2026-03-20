@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Anatomy of a Business Decision — Insight Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+  /* ===== THEME VARIABLES ===== */
+  :root {
+    --layer1: #D4A02C;
+    --layer2: #C06A2A;
+    --layer3: #B33E44;
+    --layer4: #6B2FA0;
+    --layer5: #2456A0;
+    --warn: #B33E44;
+  }
+
+  [data-theme="light"] {
+    --bg: #F6F4F0;
+    --bg2: #FFFFFF;
+    --bg3: #F0EDE8;
+    --text: #1A1A1A;
+    --text2: #555555;
+    --text3: #999999;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+    --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+    --blindspot-danger-bg: rgba(179,62,68,0.05);
+    --blindspot-caution-bg: rgba(212,160,44,0.06);
+    --stress-bg: rgba(36,86,160,0.05);
+    --stress-border: rgba(36,86,160,0.12);
+    --structural-gradient: rgba(179,62,68,0.08);
+    --audit-check-bg: rgba(36,86,160,0.08);
+    --spine-glow: rgba(0,0,0,0.06);
+    --toggle-bg: #E8E4DC;
+    --toggle-fg: #1A1A1A;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0D0F14;
+    --bg2: #15181F;
+    --bg3: #1C2029;
+    --text: #E8E4DC;
+    --text2: #9B978F;
+    --text3: #5C5950;
+    --border: rgba(255,255,255,0.06);
+    --border2: rgba(255,255,255,0.10);
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.2);
+    --blindspot-danger-bg: rgba(179,62,68,0.08);
+    --blindspot-caution-bg: rgba(212,160,44,0.07);
+    --stress-bg: rgba(36,86,160,0.1);
+    --stress-border: rgba(36,86,160,0.2);
+    --structural-gradient: rgba(179,62,68,0.12);
+    --audit-check-bg: rgba(36,86,160,0.15);
+    --spine-glow: rgba(255,255,255,0.03);
+    --toggle-bg: #2A2E38;
+    --toggle-fg: #E8E4DC;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Outfit', sans-serif; font-weight: 300;
+    line-height: 1.65; overflow-x: hidden;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  /* ===== THEME TOGGLE ===== */
+  .theme-toggle {
+    position: fixed; top: 24px; right: 24px; z-index: 100;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--bg2); border: 1px solid var(--border2);
+    box-shadow: var(--card-shadow);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; transition: all 0.3s ease;
+  }
+  .theme-toggle:hover { transform: scale(1.08); box-shadow: var(--card-shadow-hover); }
+  [data-theme="light"] .theme-toggle .icon-dark { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-light { display: none; }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center; padding: 60px 24px; position: relative;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(36,86,160,0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+  }
+  .hero-label {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-family: 'Instrument Serif', serif; font-weight: 400;
+    font-size: clamp(32px, 5vw, 68px); line-height: 1.1; margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: italic; color: var(--layer5); }
+  .hero > p {
+    max-width: 520px; font-size: 16px; color: var(--text2); margin-bottom: 48px;
+  }
+  .scroll-hint {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 2px; color: var(--text3); animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.4}50%{opacity:1} }
+
+  /* ===== SHARED ===== */
+  section { padding: 100px 24px; max-width: 860px; margin: 0 auto; }
+  .section-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 10px;
+  }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(26px, 3.5vw, 42px); font-weight: 400;
+    margin-bottom: 16px; line-height: 1.2;
+  }
+  .section-intro {
+    max-width: 640px; font-size: 15px; color: var(--text2); margin-bottom: 48px; line-height: 1.7;
+  }
+
+  /* ===== SPINE LAYOUT (vertical, single column) ===== */
+  .spine-layout { position: relative; padding-left: 48px; margin-top: 16px; }
+  .spine-layout::before {
+    content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--layer1), var(--layer2), var(--layer3), var(--layer4), var(--layer5));
+    border-radius: 2px;
+  }
+
+  .layer-item { position: relative; margin-bottom: 24px; }
+  .layer-dot {
+    position: absolute; left: -48px; top: 28px;
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
+    color: #fff; z-index: 2;
+    /* center on the 2px line at left:15px → center = 16px, so left of dot = 16 - 16 = 0 */
+    transform: translateX(0);
+  }
+
+  .layer-card {
+    padding: 28px 32px; border: 1px solid var(--border); border-radius: 14px;
+    background: var(--bg2); box-shadow: var(--card-shadow);
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .layer-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px;
+  }
+  .layer-card:hover { box-shadow: var(--card-shadow-hover); border-color: var(--border2); }
+  .layer-card .layer-num {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .layer-card h3 {
+    font-family: 'Instrument Serif', serif; font-size: 22px;
+    font-weight: 400; margin-bottom: 2px;
+  }
+  .layer-card .metaphor {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 13px; margin-bottom: 12px;
+  }
+  .layer-card .description { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .expand-hint {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--text3); margin-top: 10px; transition: opacity 0.3s;
+  }
+  .layer-card.expanded .expand-hint { opacity: 0; height: 0; margin: 0; }
+
+  .detail-grid {
+    display: none; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .layer-card.expanded .detail-grid { display: grid; }
+  .detail-box h4 {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 6px;
+  }
+  .detail-box ul { list-style: none; padding: 0; }
+  .detail-box li {
+    font-size: 13px; color: var(--text2); padding: 2px 0 2px 14px;
+    position: relative; line-height: 1.5;
+  }
+  .detail-box li::before {
+    content: '\2192'; position: absolute; left: 0; font-size: 10px; opacity: 0.35;
+  }
+
+  @media (max-width: 600px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .spine-layout { padding-left: 40px; }
+    .layer-dot { left: -40px; width: 28px; height: 28px; font-size: 11px; }
+    .spine-layout::before { left: 12px; }
+    .layer-card { padding: 22px 20px; }
+  }
+
+  /* ===== MECHANISMS ===== */
+  .mech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .mech-card {
+    padding: 28px; border: 1px solid var(--border); border-radius: 14px;
+    background: var(--bg2); box-shadow: var(--card-shadow);
+  }
+  .mech-card .mech-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 16px; background: var(--stress-bg);
+  }
+  .mech-card h3 { font-family: 'Instrument Serif', serif; font-size: 20px; margin-bottom: 8px; }
+  .mech-card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+  /* ===== DECISION ANATOMY ===== */
+  .anatomy-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .anatomy-step {
+    padding: 24px; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--bg2); box-shadow: var(--card-shadow); transition: all 0.3s;
+  }
+  .anatomy-step:hover { box-shadow: var(--card-shadow-hover); border-color: var(--border2); }
+  .anatomy-step .step-num {
+    font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 500;
+    color: var(--layer5); opacity: 0.2; line-height: 1; margin-bottom: 10px;
+  }
+  .anatomy-step h4 { font-weight: 500; font-size: 15px; margin-bottom: 6px; }
+  .anatomy-step p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  /* ===== CONSTRAINTS ===== */
+  .constraint-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+    margin-bottom: 16px; overflow: hidden; box-shadow: var(--card-shadow);
+    cursor: pointer; transition: all 0.3s;
+  }
+  .constraint-card:hover { border-color: var(--border2); box-shadow: var(--card-shadow-hover); }
+  .constraint-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 22px 24px; position: relative;
+  }
+  .constraint-header .bar {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 4px 0 0 4px;
+  }
+  .constraint-num {
+    font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500;
+    opacity: 0.2; line-height: 1; flex-shrink: 0; width: 32px;
+  }
+  .constraint-header-text { flex: 1; min-width: 0; }
+  .constraint-header-text h3 {
+    font-family: 'Instrument Serif', serif; font-size: 18px; font-weight: 400;
+  }
+  .constraint-header-text .element-label {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text3);
+  }
+  .constraint-toggle {
+    font-family: 'DM Mono', monospace; font-size: 18px;
+    color: var(--text3); flex-shrink: 0; transition: transform 0.3s;
+  }
+  .constraint-card.open .constraint-toggle { transform: rotate(45deg); }
+  .constraint-body { display: none; padding: 0 24px 24px 72px; }
+  .constraint-card.open .constraint-body { display: block; }
+
+  .blindspot-block {
+    padding: 16px 20px; border-radius: 10px; margin-bottom: 12px; border-left: 3px solid;
+  }
+  .blindspot-block.danger { background: var(--blindspot-danger-bg); border-color: var(--warn); }
+  .blindspot-block.caution { background: var(--blindspot-caution-bg); border-color: var(--layer1); }
+  .blindspot-block h5 {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .blindspot-block.danger h5 { color: var(--warn); }
+  .blindspot-block.caution h5 { color: var(--layer1); }
+  .blindspot-block p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+  .stress-test {
+    margin-top: 16px; padding: 16px 20px; background: var(--stress-bg);
+    border-radius: 10px; border: 1px solid var(--stress-border);
+  }
+  .stress-test h5 {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--layer5); margin-bottom: 6px;
+  }
+  .stress-test p {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 15px; color: var(--text); line-height: 1.6;
+  }
+
+  @media (max-width: 600px) {
+    .constraint-body { padding-left: 24px; }
+  }
+
+  /* ===== STRUCTURAL ===== */
+  .structural-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .structural-card {
+    padding: 28px; border: 1px solid var(--border); border-radius: 14px;
+    background: var(--bg2); box-shadow: var(--card-shadow);
+    position: relative; overflow: hidden;
+  }
+  .structural-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(to right, var(--warn), transparent); opacity: 0.5;
+  }
+  .structural-card .struct-icon { font-size: 24px; margin-bottom: 14px; opacity: 0.5; }
+  .structural-card h3 { font-family: 'Instrument Serif', serif; font-size: 19px; font-weight: 400; margin-bottom: 10px; }
+  .structural-card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .structural-card .antidote {
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--layer5); line-height: 1.5;
+  }
+  .structural-card .antidote strong {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 4px;
+  }
+
+  /* ===== AUDIT ===== */
+  .audit-list { margin-top: 32px; }
+  .audit-item {
+    display: flex; gap: 16px; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .audit-item:last-child { border-bottom: none; }
+  .audit-check {
+    width: 26px; height: 26px; border: 2px solid var(--text3);
+    border-radius: 6px; flex-shrink: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; font-size: 13px; color: transparent;
+    margin-top: 1px; user-select: none;
+  }
+  .audit-check.checked {
+    border-color: var(--layer5); background: var(--audit-check-bg); color: var(--layer5);
+  }
+  .audit-content h4 { font-weight: 500; font-size: 14px; margin-bottom: 3px; }
+  .audit-content p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  /* ===== FOOTER ===== */
+  .footer-section { text-align: center; padding-top: 40px; }
+  .footer-line {
+    width: 160px; height: 1px; margin: 0 auto 20px;
+    background: linear-gradient(to right, transparent, var(--text3), transparent);
+  }
+  .footer-section p {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--text3); letter-spacing: 2px;
+  }
+
+  /* ===== REVEAL ===== */
+  .reveal {
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+  <span class="icon-light">&#9789;</span>
+  <span class="icon-dark">&#9788;</span>
+</button>
+
+<!-- HERO -->
+<section class="hero" style="max-width:none;">
+  <div class="hero-label">Framework</div>
+  <h1>The Anatomy of a<br><em>Business Decision</em></h1>
+  <p>A five-layer architecture for capturing consumer and market insights systematically — from raw signal to strategic activation — stress-tested for the constraints and blindspots that make frameworks fail in practice.</p>
+  <div class="scroll-hint">&darr; SCROLL TO EXPLORE</div>
+</section>
+
+<!-- §1 ARCHITECTURE -->
+<section>
+  <div class="section-label">&sect;1 &mdash; The Architecture</div>
+  <div class="section-title">Five layers. One decision spine.</div>
+  <p class="section-intro">Most insight systems fail because they're organised around research projects rather than the decisions they serve. This architecture inverts that — every layer feeds toward, and is accountable to, the decisions at its core.</p>
+
+  <div class="spine-layout">
+
+    <!-- L1 -->
+    <div class="layer-item reveal">
+      <div class="layer-dot" style="background:var(--layer1);">1</div>
+      <div class="layer-card" onclick="this.classList.toggle('expanded')" style="--lc:var(--layer1);">
+        <div class="bar" style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--layer1);border-radius:4px 0 0 4px;"></div>
+        <div class="layer-num" style="color:var(--layer1);">Layer 01</div>
+        <h3>Signal Capture</h3>
+        <div class="metaphor" style="color:var(--layer1);">The raw nerve endings</div>
+        <div class="description">Where observations enter the system before interpretation. The discipline is to record, not to conclude. Each signal is an atom — tagged but unprocessed.</div>
+        <div class="expand-hint">&darr; Click to expand</div>
+        <div class="detail-grid">
+          <div class="detail-box"><h4>What enters here</h4><ul><li>Verbatims from research</li><li>Behavioural data spikes</li><li>Search trend anomalies</li><li>Social listening fragments</li><li>Competitor product changes</li><li>Cultural moments &amp; events</li><li>Front-line staff observations</li><li>Customer service patterns</li></ul></div>
+          <div class="detail-box"><h4>Required tags</h4><ul><li>Source type: Behavioural, attitudinal, cultural, competitive, category</li><li>Confidence: Observed / Inferred / Speculative</li><li>Date captured</li><li>Capture method: Qual, quant, passive, social, competitive intel</li><li>Relevance horizon: Immediate / Medium / Long</li></ul></div>
+          <div class="detail-box"><h4>Rhythm</h4><ul><li>Continuous — always on</li><li>Low friction entry</li><li>Weekly review cadence</li><li>Monthly signal digest</li></ul></div>
+          <div class="detail-box"><h4>Key discipline</h4><ul><li>Do not interpret at this stage</li><li>Preserve original language</li><li>One signal per entry</li><li>Tag generously, filter later</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L2 -->
+    <div class="layer-item reveal">
+      <div class="layer-dot" style="background:var(--layer2);">2</div>
+      <div class="layer-card" onclick="this.classList.toggle('expanded')">
+        <div class="bar" style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--layer2);border-radius:4px 0 0 4px;"></div>
+        <div class="layer-num" style="color:var(--layer2);">Layer 02</div>
+        <h3>Pattern Recognition</h3>
+        <div class="metaphor" style="color:var(--layer2);">The connective tissue</div>
+        <div class="description">Where individual signals converge. Three signals from different sources pointing in the same direction become a pattern. Patterns carry a convergence score and a trajectory.</div>
+        <div class="expand-hint">&darr; Click to expand</div>
+        <div class="detail-grid">
+          <div class="detail-box"><h4>Pattern anatomy</h4><ul><li>Name: A descriptive, memorable label</li><li>Contributing signals: Linked from Layer 1</li><li>Convergence score: Independent source types that corroborate</li><li>Trajectory: Emerging &rarr; Accelerating &rarr; Peaking &rarr; Declining</li></ul></div>
+          <div class="detail-box"><h4>Convergence scoring</h4><ul><li>1 source type: Hypothesis (monitor)</li><li>2 source types: Emerging pattern (investigate)</li><li>3+ source types: Robust pattern (act on)</li><li>Diverse sources &gt; volume from one method</li></ul></div>
+          <div class="detail-box"><h4>Rhythm</h4><ul><li>Bi-weekly synthesis sessions</li><li>Monthly pattern review</li><li>Quarterly trajectory update</li></ul></div>
+          <div class="detail-box"><h4>Key discipline</h4><ul><li>Resist premature closure</li><li>Look for disconfirming evidence</li><li>Update trajectories, don't just add</li><li>Name patterns vividly</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L3 -->
+    <div class="layer-item reveal">
+      <div class="layer-dot" style="background:var(--layer3);">3</div>
+      <div class="layer-card" onclick="this.classList.toggle('expanded')">
+        <div class="bar" style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--layer3);border-radius:4px 0 0 4px;"></div>
+        <div class="layer-num" style="color:var(--layer3);">Layer 03</div>
+        <h3>Insight Crystallisation</h3>
+        <div class="metaphor" style="color:var(--layer3);">The interpretive layer</div>
+        <div class="description">Where patterns get meaning. Every insight must articulate the tension it reveals — tensions are what make insights actionable. "What's happening" becomes "what it means for people and why."</div>
+        <div class="expand-hint">&darr; Click to expand</div>
+        <div class="detail-grid">
+          <div class="detail-box"><h4>Insight anatomy</h4><ul><li>Observation: What we see happening</li><li>Underlying driver: Why (human truth)</li><li>Tension: Unresolved pull between competing needs</li><li>Supporting patterns: From Layer 2</li><li>Confidence &amp; maturity</li></ul></div>
+          <div class="detail-box"><h4>Tension archetypes</h4><ul><li>Want vs. Constraint</li><li>Promise vs. Reality</li><li>Identity vs. Behaviour</li><li>Old norm vs. Emerging norm</li></ul></div>
+          <div class="detail-box"><h4>Rhythm</h4><ul><li>Monthly insight workshops</li><li>Quarterly insight library refresh</li><li>Annual tension landscape review</li></ul></div>
+          <div class="detail-box"><h4>Key discipline</h4><ul><li>Insight without tension = observation</li><li>Could a competitor use this differently?</li><li>Write for a strategist</li><li>Track tension evolution over time</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L4 -->
+    <div class="layer-item reveal">
+      <div class="layer-dot" style="background:var(--layer4);">4</div>
+      <div class="layer-card" onclick="this.classList.toggle('expanded')">
+        <div class="bar" style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--layer4);border-radius:4px 0 0 4px;"></div>
+        <div class="layer-num" style="color:var(--layer4);">Layer 04</div>
+        <h3>Implication Mapping</h3>
+        <div class="metaphor" style="color:var(--layer4);">The strategic translation</div>
+        <div class="description">Where insight meets business context. The same insight has radically different implications depending on position, capabilities, and ambitions. This layer asks: what options does this open or close?</div>
+        <div class="expand-hint">&darr; Click to expand</div>
+        <div class="detail-grid">
+          <div class="detail-box"><h4>Implication anatomy</h4><ul><li>Source insight: Linked from Layer 3</li><li>Decision domain: Brand, innovation, pricing, channel, comms, CX</li><li>Strategic options: What this opens</li><li>Strategic risks: What this closes</li><li>Urgency: Act now / Plan for / Monitor</li></ul></div>
+          <div class="detail-box"><h4>Decision domains</h4><ul><li>Brand positioning &amp; identity</li><li>Innovation pipeline &amp; NPD</li><li>Pricing architecture</li><li>Channel &amp; distribution</li><li>Communication &amp; media</li><li>Customer experience</li><li>Organisational capability</li></ul></div>
+          <div class="detail-box"><h4>Rhythm</h4><ul><li>Monthly workshops with strategy</li><li>Quarterly roadmap alignment</li><li>Ad hoc for urgent signals</li></ul></div>
+          <div class="detail-box"><h4>Key discipline</h4><ul><li>Always name the trade-off</li><li>Present options, not conclusions</li><li>Map to specific decisions</li><li>Us vs. category implications</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L5 -->
+    <div class="layer-item reveal">
+      <div class="layer-dot" style="background:var(--layer5);">5</div>
+      <div class="layer-card" onclick="this.classList.toggle('expanded')">
+        <div class="bar" style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--layer5);border-radius:4px 0 0 4px;"></div>
+        <div class="layer-num" style="color:var(--layer5);">Layer 05</div>
+        <h3>Decision Activation</h3>
+        <div class="metaphor" style="color:var(--layer5);">The spine itself</div>
+        <div class="description">The registry of decisions — past, pending, and anticipated. Each carries its own anatomy: trigger, evidence, tensions navigated, bet placed, outcome observed. The loop closes here.</div>
+        <div class="expand-hint">&darr; Click to expand</div>
+        <div class="detail-grid">
+          <div class="detail-box"><h4>Decision record</h4><ul><li>Trigger: Why now?</li><li>Question: What specifically?</li><li>Evidence base: Linked + convergence scores</li><li>Tensions navigated: Trade-offs accepted</li><li>The bet: Falsifiable hypothesis</li></ul></div>
+          <div class="detail-box"><h4>Feedback loop</h4><ul><li>Expected outcome: If right, what &amp; when?</li><li>Feedback triggers: What signals to watch</li><li>Kill criteria: What makes us reverse?</li><li>Actual outcome &rarr; feeds Layer 1</li></ul></div>
+          <div class="detail-box"><h4>Rhythm</h4><ul><li>Logged at commitment point</li><li>Monthly feedback trigger review</li><li>Quarterly outcome audit</li><li>Annual decision quality review</li></ul></div>
+          <div class="detail-box"><h4>Key discipline</h4><ul><li>Record before you know the outcome</li><li>Be explicit about the bet</li><li>Distinguish wrong decision vs. poor execution</li><li>Close the loop — always</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §2 MECHANISMS -->
+<section>
+  <div class="section-label">&sect;2 &mdash; Connective Mechanisms</div>
+  <div class="section-title">What makes this connected,<br>not just organised.</div>
+  <div class="mech-grid">
+    <div class="mech-card reveal"><div class="mech-icon">&olarr;</div><h3>Threading</h3><p>Any element at any layer can link to any other. A signal can jump to a decision if urgent. An implication can challenge an old pattern. The system is a web, not a funnel.</p></div>
+    <div class="mech-card reveal"><div class="mech-icon">&harr;</div><h3>Tension Tracking</h3><p>Tensions persist for years. New signals add nuance, new patterns shift shape, multiple decisions attempt resolution. This reveals whether the business addresses root dynamics or treats symptoms.</p></div>
+    <div class="mech-card reveal"><div class="mech-icon">&#9716;</div><h3>Temporal Tagging</h3><p>Every element carries a relevance horizon. Cultural macro-trend: 3–5 years. Competitive move: 6 months. Behavioural signal: 2–3 month leading indicator.</p></div>
+  </div>
+</section>
+
+<!-- §3 DECISION ANATOMY -->
+<section>
+  <div class="section-label">&sect;3 &mdash; Decision Anatomy</div>
+  <div class="section-title">Eight elements of every business decision.</div>
+  <p class="section-intro">The outcome generates new signals, which reinforce or challenge patterns, which updates the insight base. The system breathes.</p>
+  <div class="anatomy-grid">
+    <div class="anatomy-step reveal"><div class="step-num">01</div><h4>The Trigger</h4><p>Why now? Market pressure, opportunity, initiative, or crisis.</p></div>
+    <div class="anatomy-step reveal"><div class="step-num">02</div><h4>The Question</h4><p>What specifically are we deciding? Framing well is half the answer.</p></div>
+    <div class="anatomy-step reveal"><div class="step-num">03</div><h4>Evidence Base</h4><p>Linked insights, patterns, signals — with convergence scores.</p></div>
+    <div class="anatomy-step reveal"><div class="step-num">04</div><h4>Tensions Navigated</h4><p>What trade-offs? What are we choosing not to optimise for?</p></div>
+    <div class="anatomy-step reveal"><div class="step-num">05</div><h4>The Bet</h4><p>The underlying falsifiable hypothesis.</p></div>
+    <div class="anatomy-step reveal"><div class="step-num">06</div><h4>Expected Outcome</h4><p>If right, what &amp; when? Leading vs. lagging indicators.</p></div>
+    <div class="anatomy-step reveal"><div class="step-num">07</div><h4>Feedback Triggers</h4><p>What confirms or disconfirms? Kill criteria.</p></div>
+    <div class="anatomy-step reveal"><div class="step-num">08</div><h4>Actual Outcome</h4><p>What happened? New signals &rarr; Layer 1.</p></div>
+  </div>
+</section>
+
+<!-- §4 CONSTRAINTS & BLINDSPOTS -->
+<section>
+  <div class="section-label">&sect;4 &mdash; Constraints &amp; Blindspots</div>
+  <div class="section-title">Where each element fails in practice.</div>
+  <p class="section-intro">Every element has failure modes — most invisible to the person inside the decision. Click to reveal the constraint, blindspot, and stress test.</p>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--layer1);"></div><div class="constraint-num" style="color:var(--layer1);">01</div><div class="constraint-header-text"><div class="element-label">The Trigger</div><h3>What you think prompted the decision is rarely the real reason</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>Core blindspot</h5><p>The stated trigger is the respectable one. But decisions are more often triggered by fear, internal politics, sunk cost escalation, or mimicry. Teams rarely interrogate honestly — so the decision gets optimised for the wrong problem.</p></div>
+      <div class="blindspot-block caution"><h5>Deeper constraint</h5><p>Urgency distorts evidence. When a trigger creates time pressure, teams reach for what's available rather than what's relevant. The most dangerous decisions feel urgent but aren't.</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"If this trigger had appeared two years ago, would we have acted? If not — what changed: the evidence, or our anxiety?"</p></div>
+    </div>
+  </div>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--layer1);"></div><div class="constraint-num" style="color:var(--layer1);">02</div><div class="constraint-header-text"><div class="element-label">The Question</div><h3>Framing is the invisible decision before the decision</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>Core blindspot</h5><p>How you frame the question pre-selects the answer. "Should we enter this category?" hides the real decision, which might be "what's the least risky way to learn if this category is viable?" The question is usually inherited and rarely re-examined.</p></div>
+      <div class="blindspot-block caution"><h5>Deeper constraint</h5><p>Questions carry embedded assumptions. "How do we win with Gen Z?" assumes Gen Z is a meaningful segment, that "winning" means the same thing, and that the current model can accommodate whatever the answer is.</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"Rewrite the question three different ways. The version that makes you most uncomfortable is probably closest to the real decision."</p></div>
+    </div>
+  </div>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--warn);"></div><div class="constraint-num" style="color:var(--warn);">03</div><div class="constraint-header-text"><div class="element-label">The Evidence Base</div><h3>You will always find evidence for what you already believe</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>Confirmation curation</h5><p>Confirmation bias operates at selection, not interpretation. Teams don't distort evidence — they curate it. Three supporting signals get cited; seven complicating ones get filed as "interesting but not actionable."</p></div>
+      <div class="blindspot-block danger"><h5>Survivorship bias</h5><p>Your insight library only contains what past research investigated. Unstudied categories are invisible, not absent. The most important insight might be in research you didn't commission.</p></div>
+      <div class="blindspot-block caution"><h5>The streetlight effect</h5><p>Teams look where measurement is easy, not where the answer lives. Digital data is abundant and precise so it gets over-indexed. Cultural shifts get treated as "soft" even when they're the actual driver.</p></div>
+      <div class="blindspot-block caution"><h5>Recency bias</h5><p>The most recent research dominates regardless of relevance. A three-year-old segmentation might be more pertinent than last month's concept test.</p></div>
+      <div class="blindspot-block danger"><h5>The absent field</h5><p>No field for "what evidence would change our mind?" Without this, the evidence base functions as prosecution, not investigation.</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"What would we need to see to abandon this direction? If no one can answer, the evidence base is a costume, not a foundation."</p></div>
+    </div>
+  </div>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--layer4);"></div><div class="constraint-num" style="color:var(--layer4);">04</div><div class="constraint-header-text"><div class="element-label">Tensions Navigated</div><h3>The tension you don't name is the one that kills you</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>Core blindspot</h5><p>Records capture what was gained, never what was sacrificed. Twelve months later, when the sacrificed dimension causes problems, nobody remembers it was a conscious choice. It's treated as failure rather than trade-off.</p></div>
+      <div class="blindspot-block caution"><h5>Undiscussable tensions</h5><p>"What the data says" vs. "what the CEO believes" is real but won't appear in any document. "Right long-term" vs. "hits this quarter's targets" is equally real and equally absent.</p></div>
+      <div class="blindspot-block caution"><h5>Depth vs. decisiveness</h5><p>More research always feels safer, but delayed action is invisible. There's no line item for "six months spent being certain while the market moved."</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"What will we be worse at because of this decision? If the answer is 'nothing' — you haven't found the real trade-off."</p></div>
+    </div>
+  </div>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--layer4);"></div><div class="constraint-num" style="color:var(--layer4);">05</div><div class="constraint-header-text"><div class="element-label">The Bet</div><h3>Most organisations cannot articulate their hypothesis</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>Core blindspot</h5><p>"Betting on premiumisation" is a direction, not a hypothesis. A hypothesis is falsifiable: "Consumers will pay 20% more for verifiable transparency because trust is the binding purchase constraint." Directions can't be tested.</p></div>
+      <div class="blindspot-block caution"><h5>Accountability avoidance</h5><p>Explicit bets create accountability. Organisations avoid this instinctively. A vague bet protects everyone — if strategy fails, the hypothesis was never clear enough to falsify, so failure gets attributed to execution.</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"Complete: 'We believe [who] will [what] because [why], verified by [metric] by [date].' If you can't — you don't have a bet."</p></div>
+    </div>
+  </div>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--layer5);"></div><div class="constraint-num" style="color:var(--layer5);">06</div><div class="constraint-header-text"><div class="element-label">Expected Outcome</div><h3>Precision creates the illusion of prediction</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>False specificity</h5><p>"15% uplift in 6 months" sounds rigorous but is usually reverse-engineered from the business case, not predicted from evidence. The expected outcome becomes a negotiated fiction.</p></div>
+      <div class="blindspot-block caution"><h5>Multi-speed outcomes</h5><p>Decisions have outcome dimensions moving at different speeds. Teams pick the fastest metric (validates sooner) which may be the least meaningful. Separate leading indicators from lagging indicators.</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"Where did this number come from — the evidence, or the business case? If you can't trace it to data or precedent, it's a wish."</p></div>
+    </div>
+  </div>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--layer5);"></div><div class="constraint-num" style="color:var(--layer5);">07</div><div class="constraint-header-text"><div class="element-label">Feedback Triggers</div><h3>The signals you pre-commit to are never the ones that matter most</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>Confirming triggers</h5><p>Triggers are set at maximum confidence — right after the decision. They skew toward confirming signals. A real system needs kill criteria: "If X happens, we reverse." Almost no organisation defines these in advance.</p></div>
+      <div class="blindspot-block caution"><h5>Biased interpreters</h5><p>If the champion monitors their own decision, interpretation is biased. Feedback should ideally be monitored by someone with no stake — which is organisationally almost impossible.</p></div>
+      <div class="blindspot-block caution"><h5>Signal vs. noise</h5><p>The interval between decision and feedback is filled with noise mistaken for signal. A post-launch spike might be distribution, not response. Waiting for real data is the hardest discipline.</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"What would make us stop? If nobody defined kill criteria before launch, we're cheerleading, not monitoring."</p></div>
+    </div>
+  </div>
+
+  <div class="constraint-card reveal" onclick="this.classList.toggle('open')">
+    <div class="constraint-header"><div class="bar" style="background:var(--layer5);"></div><div class="constraint-num" style="color:var(--layer5);">08</div><div class="constraint-header-text"><div class="element-label">Actual Outcome</div><h3>Attribution is the final lie</h3></div><div class="constraint-toggle">+</div></div>
+    <div class="constraint-body">
+      <div class="blindspot-block danger"><h5>False attribution</h5><p>Did it succeed because the hypothesis was right, or because the market moved favourably for unrelated reasons? Did it fail because the bet was wrong, execution was poor, or a competitor did something unpredictable?</p></div>
+      <div class="blindspot-block caution"><h5>Narrative capture</h5><p>Organisations need simple stories. "It worked because consumers rewarded honesty" is clean. "It coincided with a competitor's scandal" is inconvenient. The simple narrative wins, teaching the wrong lesson.</p></div>
+      <div class="stress-test"><h5>Stress test</h5><p>"Name three alternative explanations for the outcome. If you can't, you're storytelling, not analysing."</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 STRUCTURAL BLINDSPOTS -->
+<section>
+  <div class="section-label">&sect;5 &mdash; Structural Blindspots</div>
+  <div class="section-title">Four ways the architecture itself can fail.</div>
+  <p class="section-intro">Beyond individual elements, the system has systemic vulnerabilities. These aren't flaws to fix — they're tensions to manage.</p>
+  <div class="structural-grid">
+    <div class="structural-card reveal"><div class="struct-icon">&#9676;</div><h3>The Negative Space</h3><p>The most consequential blindspot is what never enters the system — questions not asked, segments not studied, shifts not tracked because they don't map to the current category.</p><div class="antidote"><strong>Antidote</strong>Quarterly "negative space audit." What's adjacent that we've decided isn't relevant? Rotate an outsider through signal capture.</div></div>
+    <div class="structural-card reveal"><div class="struct-icon">&olarr;</div><h3>Power in Interpretation</h3><p>Whoever controls the narrative at Layer 3 controls decisions at Layer 5. A senior person's gut feel overrides careful analysis, and the framework has no defence.</p><div class="antidote"><strong>Antidote</strong>Separate insight workshop from implication workshop. Let insights crystallise before strategy enters the room.</div></div>
+    <div class="structural-card reveal"><div class="struct-icon">&infin;</div><h3>The Accumulation Problem</h3><p>Over time, the system generates more than anyone can hold. Without curation, it becomes an archive. Old patterns persist and distort new interpretation.</p><div class="antidote"><strong>Antidote</strong>Build deprecation into the rhythm. Retire as many insights as promoted. Auto-archive after 6 months without update.</div></div>
+    <div class="structural-card reveal"><div class="struct-icon">&sharp;</div><h3>The Rationality Assumption</h3><p>The framework assumes evidence-based deliberation. Many decisions are emotional or political, then retrospectively fitted with evidence.</p><div class="antidote"><strong>Antidote</strong>Complete the decision record before the outcome is known. The gap between stated and actual reasoning becomes harder to hide.</div></div>
+  </div>
+</section>
+
+<!-- §6 DECISION QUALITY AUDIT -->
+<section>
+  <div class="section-label">&sect;6 &mdash; Decision Quality Audit</div>
+  <div class="section-title">Pre-flight checklist.</div>
+  <p class="section-intro">Run before any significant decision. Each question surfaces a specific blindspot. If you can't answer honestly, the decision isn't ready.</p>
+  <div class="audit-list">
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Trigger Integrity</h4><p>Have we named the real trigger — including fear, politics, or sunk-cost pressure?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Question Reframe</h4><p>Written the question three ways? Did the uncomfortable version make it into the room?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Disconfirming Evidence</h4><p>Can we name evidence arguing against this? Has it been weighed, not just acknowledged?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Convergence Quality</h4><p>3+ independent source types in the evidence base? Or just volume from one method?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Streetlight Check</h4><p>Over-indexing on what's easy to measure? A harder-to-measure dimension might be the real driver.</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Negative Space</h4><p>What haven't we researched that could change this? What adjacent territory assumed irrelevant?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Tension Honesty</h4><p>Named what we'll be worse at? Including the undiscussable tensions?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Falsifiable Bet</h4><p>"We believe [who] will [what] because [why], by [metric] by [date]." Completeable?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Evidence-Based Expectations</h4><p>Expected outcomes traced to data — or reverse-engineered from the business case?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Leading vs. Lagging</h4><p>Separated metrics that move first (may mislead) from those that move last (probably real)?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Kill Criteria Defined</h4><p>Pre-committed conditions for reversal? Who monitors — and are they independent?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Independent Monitor</h4><p>Feedback trigger owner different from decision champion?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Pre-mortem Complete</h4><p>12 months out, this failed — most likely reason? Is it addressed in the plan?</p></div></div>
+    <div class="audit-item reveal"><div class="audit-check" onclick="event.stopPropagation();this.classList.toggle('checked')">&check;</div><div class="audit-content"><h4>Record Before Outcome</h4><p>Full decision record written down before we know what happens?</p></div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<section class="footer-section">
+  <div class="footer-line"></div>
+  <p>THE ANATOMY OF A BUSINESS DECISION — INSIGHT ARCHITECTURE FRAMEWORK</p>
+</section>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  }
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
