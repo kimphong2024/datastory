@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ageing in Singapore — from research to product</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4EFE7;
+  --bg-deep: #EBE4D6;
+  --bg-card: #FBF7EF;
+  --ink: #1C1A17;
+  --ink-soft: #3A3630;
+  --ink-mute: #6B6358;
+  --ink-faint: #A39B8E;
+  --accent: #8B2F1B;
+  --accent-soft: #C4593F;
+  --accent-bg: #F4DDD2;
+  --teal: #2E5D4F;
+  --teal-soft: #4A8573;
+  --teal-bg: #D9E5DE;
+  --gold: #8A6914;
+  --gold-bg: #EFE4C4;
+  --violet: #3E2E6B;
+  --violet-bg: #E2DCEF;
+  --rule: #D4CBB8;
+  --rule-soft: #E3DBC8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter Tight', -apple-system, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  font-feature-settings: 'ss01', 'cv11';
+  overflow-x: hidden;
+}
+
+/* ---------- typography primitives ---------- */
+.display {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  font-variation-settings: 'opsz' 144;
+}
+
+.display em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.lead {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  letter-spacing: -0.005em;
+}
+
+p { color: var(--ink-soft); }
+strong { font-weight: 500; color: var(--ink); }
+em { font-style: italic; }
+
+/* ---------- layout ---------- */
+.frame {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 5vw, 72px);
+}
+
+section { padding: clamp(48px, 7vw, 96px) 0; position: relative; }
+
+section + section { border-top: 1px solid var(--rule-soft); }
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(244, 239, 231, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule-soft);
+  z-index: 100;
+}
+
+.topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.topbar-nav { display: flex; gap: 24px; }
+.topbar-nav a {
+  color: var(--ink-mute);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.topbar-nav a:hover { color: var(--accent); }
+
+/* ---------- hero ---------- */
+.hero { padding: clamp(80px, 12vw, 160px) 0 clamp(48px, 8vw, 96px); }
+
+.hero-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 56px;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.hero-meta-block { max-width: 260px; }
+.hero-meta-block .eyebrow { display: block; margin-bottom: 6px; }
+.hero-meta-block p { font-size: 13px; color: var(--ink-mute); line-height: 1.5; }
+
+.hero h1 {
+  font-size: clamp(48px, 9vw, 132px);
+  margin-bottom: 40px;
+  max-width: 14ch;
+}
+
+.hero-sub {
+  max-width: 620px;
+  margin-top: 32px;
+}
+
+.hero-stats {
+  margin-top: 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  padding: 32px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+@media (max-width: 720px) {
+  .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+}
+
+.stat .num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  display: block;
+}
+.stat .num sup {
+  font-size: 0.5em;
+  font-weight: 400;
+  color: var(--ink-mute);
+  margin-left: 4px;
+}
+.stat .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 8px;
+  display: block;
+}
+
+/* ---------- section heads ---------- */
+.sec-head { margin-bottom: 56px; max-width: 900px; }
+.sec-head .eyebrow { display: block; margin-bottom: 20px; }
+.sec-head h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(36px, 5vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  max-width: 18ch;
+}
+.sec-head h2 em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+}
+.sec-head .lead { max-width: 680px; }
+
+/* ---------- the approach section ---------- */
+.approach-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .approach-grid { grid-template-columns: 1fr; }
+}
+
+.approach-steps { position: relative; }
+.approach-step {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  align-items: start;
+}
+.approach-step:last-child { border-bottom: none; }
+.approach-step .num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+.approach-step h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.approach-step p { font-size: 14px; line-height: 1.55; }
+
+.approach-quote {
+  padding: 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  position: relative;
+}
+.approach-quote .mark {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 96px;
+  line-height: 0.7;
+  color: var(--accent);
+  position: absolute;
+  top: 24px;
+  left: 32px;
+}
+.approach-quote blockquote {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-top: 40px;
+  position: relative;
+  z-index: 1;
+}
+.approach-quote blockquote em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+}
+.approach-quote cite {
+  display: block;
+  margin-top: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-style: normal;
+}
+
+/* ---------- research pillars ---------- */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 48px;
+}
+@media (max-width: 860px) { .pillars { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .pillars { grid-template-columns: 1fr; } }
+
+.pillar {
+  background: var(--bg);
+  padding: 32px 28px;
+}
+.pillar .pnum {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.pillar h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.pillar p { font-size: 13px; line-height: 1.6; color: var(--ink-mute); }
+.pillar .data {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.pillar .data-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 4px;
+}
+
+/* ---------- findings ---------- */
+.findings-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  margin-bottom: 64px;
+  align-items: start;
+}
+@media (max-width: 860px) { .findings-intro { grid-template-columns: 1fr; gap: 32px; } }
+
+.findings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px 64px;
+}
+@media (max-width: 860px) { .findings { grid-template-columns: 1fr; } }
+
+.finding {
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.finding .tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+  padding: 3px 10px;
+  background: var(--accent-bg);
+  border-radius: 2px;
+}
+.finding h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.finding p { font-size: 15px; line-height: 1.6; }
+.finding .pull {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: var(--bg-card);
+  border-left: 2px solid var(--accent);
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+/* ---------- gap section ---------- */
+.gaps-band {
+  background: var(--ink);
+  color: var(--bg);
+  margin: 0 calc(-1 * max(24px, 5vw));
+  padding: clamp(64px, 10vw, 120px) max(24px, 5vw);
+  border-radius: 4px;
+}
+.gaps-band h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(32px, 5vw, 64px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  max-width: 18ch;
+  color: var(--bg);
+}
+.gaps-band h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #E8C69C; }
+.gaps-band .lead { color: rgba(244, 239, 231, 0.75); max-width: 620px; }
+
+.gaps-list {
+  margin-top: 64px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(244, 239, 231, 0.15);
+  border: 1px solid rgba(244, 239, 231, 0.15);
+}
+@media (max-width: 860px) { .gaps-list { grid-template-columns: 1fr; } }
+
+.gap-cell {
+  background: var(--ink);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+}
+.gap-cell .n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #E8C69C;
+}
+.gap-cell h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.18;
+  color: var(--bg);
+  margin: 16px 0;
+}
+.gap-cell p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(244, 239, 231, 0.65);
+}
+
+/* ---------- concepts grid ---------- */
+.concepts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+@media (max-width: 720px) { .concepts-grid { grid-template-columns: 1fr; } }
+
+.concept-card {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, border-color 0.3s;
+  cursor: default;
+}
+.concept-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+.concept-card .num-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.concept-card .num {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 44px;
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+.concept-card .kind {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.concept-card h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin-bottom: 8px;
+}
+.concept-card h3 em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  color: var(--ink-mute);
+  font-weight: 400;
+}
+.concept-card .tagline {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-mute);
+  font-style: italic;
+  margin-bottom: 20px;
+  min-height: 40px;
+}
+.concept-card .who-what {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.concept-card .who-what .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 2px;
+}
+.concept-card .who-what p { color: var(--ink-soft); }
+.concept-card .features {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-soft);
+}
+.concept-card .features .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 8px;
+  display: block;
+}
+.concept-card .features span {
+  display: inline-block;
+  font-size: 12px;
+  padding: 3px 10px;
+  background: var(--bg);
+  border: 1px solid var(--rule-soft);
+  border-radius: 999px;
+  margin: 0 4px 4px 0;
+  color: var(--ink-soft);
+}
+
+/* ---------- priority matrix ---------- */
+.matrix-wrap { margin-top: 48px; }
+.matrix-legend {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  flex-wrap: wrap;
+}
+.matrix-legend span { display: flex; align-items: center; gap: 8px; }
+.matrix-legend .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.matrix-chart {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 40px 40px 64px 72px;
+  height: 540px;
+}
+.matrix-yaxis {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.matrix-xaxis {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.matrix-grid {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-left: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background:
+    linear-gradient(to right, var(--rule-soft) 0.5px, transparent 0.5px) 0 0 / 25% 100%,
+    linear-gradient(to bottom, var(--rule-soft) 0.5px, transparent 0.5px) 0 0 / 100% 25%;
+}
+.matrix-dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.matrix-dot .circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--bg);
+  border: 2px solid var(--bg);
+  box-shadow: 0 2px 8px rgba(28, 26, 23, 0.15);
+}
+.matrix-dot .name {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--bg-card);
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--rule-soft);
+  white-space: nowrap;
+}
+.matrix-dot.coord .circle { background: var(--violet); }
+.matrix-dot.pres .circle { background: var(--teal); }
+.matrix-dot.prot .circle { background: var(--accent); }
+
+.matrix-quad-label {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+/* ---------- deep dive sections ---------- */
+.deepdive {
+  background: var(--bg-deep);
+  margin: 0 calc(-1 * max(24px, 5vw));
+  padding: clamp(64px, 10vw, 120px) max(24px, 5vw);
+}
+
+.dd-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  margin-bottom: 80px;
+  align-items: end;
+}
+@media (max-width: 860px) { .dd-hero { grid-template-columns: 1fr; gap: 24px; } }
+
+.dd-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+.dd-hero h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(48px, 7vw, 108px);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.dd-hero h2 em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+.dd-hero .tagline {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* journey timeline */
+.dd-block { margin-bottom: 80px; }
+.dd-block-head {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 48px;
+  margin-bottom: 40px;
+  align-items: start;
+  border-top: 1px solid var(--rule);
+  padding-top: 40px;
+}
+@media (max-width: 720px) { .dd-block-head { grid-template-columns: 1fr; gap: 12px; } }
+.dd-block-head .eyebrow { padding-top: 6px; }
+.dd-block-head h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 3.5vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+.dd-block-head h3 em { font-family: 'Instrument Serif', serif; font-style: italic; }
+
+.persona {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 20px 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  color: var(--ink-soft);
+}
+
+.timeline {
+  position: relative;
+  padding-left: 40px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 16px;
+  bottom: 16px;
+  width: 1px;
+  background: var(--rule);
+}
+.tl-step { position: relative; margin-bottom: 40px; }
+.tl-step::before {
+  content: '';
+  position: absolute;
+  left: -34px;
+  top: 8px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--bg-deep);
+  border: 2px solid var(--accent);
+}
+.tl-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 4px;
+}
+.tl-event {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.25;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.tl-detail {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+  max-width: 60ch;
+}
+.tl-save {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--teal);
+  background: var(--teal-bg);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* key screens */
+.screens-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 860px) { .screens-row { grid-template-columns: 1fr; } }
+
+.phone-shell {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 20px;
+}
+.phone-caption {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  text-align: center;
+  margin-bottom: 14px;
+}
+.phone {
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 18px 16px;
+  border: 1px solid var(--rule);
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+}
+.phone-head {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+}
+.phone-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.15;
+  margin-bottom: 2px;
+  color: var(--ink);
+}
+.phone-sub {
+  font-size: 12px;
+  color: var(--ink-mute);
+  margin-bottom: 14px;
+}
+.pill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 13px;
+}
+.pill-row:last-child { border-bottom: none; }
+.pill-left { display: flex; align-items: center; gap: 10px; }
+.pill-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+}
+.pill-dot.done { background: var(--teal-bg); color: var(--teal); }
+.pill-dot.miss { background: var(--gold-bg); color: var(--gold); }
+.pill-dot.next { background: var(--bg-deep); color: var(--ink-mute); }
+.pill-name { font-weight: 500; color: var(--ink); font-size: 13px; }
+.pill-dose { font-size: 11px; color: var(--ink-mute); }
+.phone-btn {
+  margin-top: auto;
+  background: var(--accent);
+  color: var(--bg);
+  text-align: center;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.phone-btn.teal { background: var(--teal); }
+.phone-btn.violet { background: var(--violet); }
+
+.scan-area {
+  background: var(--bg-deep);
+  border-radius: 6px;
+  height: 100px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--rule);
+}
+.scan-pill {
+  width: 40px;
+  height: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+}
+
+.scan-result {
+  background: var(--teal-bg);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.scan-result p { margin: 0; font-size: 12px; line-height: 1.4; color: var(--teal); }
+.scan-result .head { font-weight: 500; margin-bottom: 3px; }
+
+.scan-warn {
+  background: var(--gold-bg);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.scan-warn p { margin: 0; font-size: 12px; line-height: 1.4; color: var(--gold); }
+.scan-warn .head { font-weight: 500; margin-bottom: 3px; }
+
+.cg-metric {
+  background: var(--bg-deep);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.cg-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.cg-val {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1;
+  margin-top: 3px;
+  color: var(--ink);
+}
+.cg-note { font-size: 11px; color: var(--ink-mute); margin-top: 4px; }
+
+.event-row {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 11px;
+}
+.event-row:last-child { border: none; }
+.event-row .time { color: var(--ink-faint); width: 40px; flex-shrink: 0; }
+.event-row .txt { color: var(--ink-soft); }
+
+/* Jumpa screens specific */
+.match {
+  background: var(--bg-deep);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.match-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+.match-title { font-size: 13px; font-weight: 500; color: var(--ink); }
+.match-dist { font-size: 11px; color: var(--ink-mute); }
+.match-who { font-size: 11px; color: var(--ink-mute); margin-bottom: 6px; }
+.match-tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--teal-bg);
+  color: var(--teal);
+}
+.match-tag.urgent { background: var(--gold-bg); color: var(--gold); }
+
+.off-card {
+  background: var(--bg-deep);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.off-card p { margin: 3px 0; }
+
+.heat-banner {
+  background: #F4DDD2;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.heat-banner .h { font-size: 12px; font-weight: 500; color: var(--accent); margin: 0; }
+.heat-banner .s { font-size: 11px; color: var(--accent-soft); margin: 3px 0 0; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.stat-mini {
+  background: var(--bg-deep);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.stat-mini .l {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.stat-mini .v {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 20px;
+  margin-top: 2px;
+  color: var(--ink);
+}
+
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 11px;
+}
+.list-row:last-child { border: none; }
+.list-row .n { color: var(--ink); }
+.list-row .s { color: var(--ink-mute); }
+.list-row .s.risk { color: var(--accent); }
+
+/* integrations */
+.int-tier { margin-bottom: 32px; }
+.int-tier-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.int-tier-head h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--ink);
+}
+.int-tier-head .note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.05em;
+}
+.int-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 720px) { .int-grid { grid-template-columns: 1fr; } }
+.int-cell {
+  background: var(--bg-card);
+  border: 1px solid var(--rule-soft);
+  border-left: 3px solid var(--accent);
+  padding: 12px 14px;
+}
+.int-cell.mvp { border-left-color: var(--accent); }
+.int-cell.p2 { border-left-color: var(--violet); }
+.int-cell.p3 { border-left-color: var(--gold); }
+.int-cell h5 {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.int-cell p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+
+/* business model */
+.biz-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-top: 32px;
+}
+@media (max-width: 860px) { .biz-grid { grid-template-columns: 1fr; } }
+
+.biz-card {
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 24px 28px;
+}
+.biz-card .biz-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.biz-card h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+.biz-card p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.biz-card .val {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.tam-bar {
+  margin-top: 32px;
+  padding: 28px 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+.tam-bar .eyebrow { display: block; margin-bottom: 12px; }
+.tam-bar p {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--ink);
+  max-width: 80ch;
+}
+.tam-bar p em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--accent); }
+
+/* roadmap */
+.roadmap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 32px;
+}
+@media (max-width: 860px) { .roadmap { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .roadmap { grid-template-columns: 1fr; } }
+
+.rm-phase {
+  background: var(--bg-card);
+  padding: 24px;
+}
+.rm-phase .p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.rm-phase h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.2;
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+.rm-phase ul {
+  list-style: none;
+  padding: 0;
+}
+.rm-phase li {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.rm-phase li:last-child { border: none; }
+
+/* ---------- closing ---------- */
+.closing { padding: clamp(80px, 12vw, 160px) 0; }
+.closing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+@media (max-width: 860px) { .closing-grid { grid-template-columns: 1fr; gap: 40px; } }
+.closing h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.closing h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+
+.closing-points { display: flex; flex-direction: column; gap: 28px; }
+.closing-point { border-top: 1px solid var(--rule); padding-top: 20px; }
+.closing-point .eyebrow { display: block; margin-bottom: 8px; }
+.closing-point p {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.footer {
+  border-top: 1px solid var(--rule);
+  padding: 32px 0 48px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+/* ---------- reveal on scroll ---------- */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== top bar ========== -->
+<div class="topbar">
+  <div class="frame topbar-inner">
+    <span>Singapore ageing · research to product</span>
+    <nav class="topbar-nav">
+      <a href="#research">01 Research</a>
+      <a href="#concepts">02 Concepts</a>
+      <a href="#matrix">03 Priority</a>
+      <a href="#ubat">04 Ubat</a>
+      <a href="#jumpa">05 Jumpa</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ========== hero ========== -->
+<section class="hero">
+<div class="frame">
+
+<div class="hero-meta">
+  <div class="hero-meta-block">
+    <span class="eyebrow">Study · scope</span>
+    <p>Singapore's ageing population: healthcare, finance, social, housing — past three years through next twenty.</p>
+  </div>
+  <div class="hero-meta-block">
+    <span class="eyebrow">Intent</span>
+    <p>Brainstorm a new digital app addressing real unmet needs, not duplicating existing tools.</p>
+  </div>
+  <div class="hero-meta-block">
+    <span class="eyebrow">Output</span>
+    <p>Ten concepts, prioritised; two taken to MVP-level depth.</p>
+  </div>
+</div>
+
+<h1 class="display">An ageing city, <em>well-served</em> and still <em>unseen</em>.</h1>
+
+<p class="lead hero-sub">Singapore crosses the super-aged threshold in 2026. The state has shipped world-class schemes. Seniors and their families, meanwhile, live with fragmentation, English-bias, scams, and <em>together-but-apart</em> loneliness. The opportunity is not another dashboard. It is connective tissue.</p>
+
+<div class="hero-stats">
+  <div class="stat">
+    <span class="num">18.8<sup>%</sup></span>
+    <span class="lbl">residents 65+ · Jun 2025</span>
+  </div>
+  <div class="stat">
+    <span class="num">1.28<sup>B</sup></span>
+    <span class="lbl">S$ informal care · per year</span>
+  </div>
+  <div class="stat">
+    <span class="num">37<sup>K</sup></span>
+    <span class="lbl">S$ avg senior scam loss · 2025</span>
+  </div>
+  <div class="stat">
+    <span class="num">34<sup>%</sup></span>
+    <span class="lbl">older adults feel lonely</span>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- ========== approach ========== -->
+<section>
+<div class="frame">
+
+<div class="sec-head reveal">
+  <span class="eyebrow">00 · Method</span>
+  <h2>How the thinking <em>moved</em>.</h2>
+  <p class="lead">We began with a wide-lens review, narrowed to concrete need-gaps, generated ten concepts, scored them for severity and feasibility, and took two all the way to MVP architecture.</p>
+</div>
+
+<div class="approach-grid">
+  <div class="approach-steps reveal">
+    <div class="approach-step">
+      <span class="num">01</span>
+      <div>
+        <h3>Scope the landscape</h3>
+        <p>Demographic, healthcare, financial, social, housing — across the past three years and the next twenty.</p>
+      </div>
+    </div>
+    <div class="approach-step">
+      <span class="num">02</span>
+      <div>
+        <h3>Surface the gaps</h3>
+        <p>Separate what the state has built well from what seniors and caregivers still struggle with in daily life.</p>
+      </div>
+    </div>
+    <div class="approach-step">
+      <span class="num">03</span>
+      <div>
+        <h3>Generate broadly</h3>
+        <p>Ten app concepts across three thematic clusters — coordination, presence, protection.</p>
+      </div>
+    </div>
+    <div class="approach-step">
+      <span class="num">04</span>
+      <div>
+        <h3>Prioritise honestly</h3>
+        <p>Plot need severity against build feasibility. Let the matrix reveal the order to ship.</p>
+      </div>
+    </div>
+    <div class="approach-step">
+      <span class="num">05</span>
+      <div>
+        <h3>Go deep on two</h3>
+        <p>Ubat and Jumpa: user journeys, screens, integrations, business model, roadmap. From research to something buildable.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="approach-quote reveal">
+    <span class="mark">"</span>
+    <blockquote>He used to play chess with <em>people</em>. How can you play chess <em>alone</em>?</blockquote>
+    <cite>— Duke-NUS caregiver fieldwork · 2024</cite>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- ========== research pillars ========== -->
+<section id="research">
+<div class="frame">
+
+<div class="sec-head reveal">
+  <span class="eyebrow">01 · The landscape</span>
+  <h2>Four forces shaping the <em>next twenty</em> years.</h2>
+  <p class="lead">Each pillar below anchors one quarter of the research base. Numbers from Singstat, NPTD, MOH, Duke-NUS, ROSA, IMDA, SPF and SingHealth unless noted otherwise.</p>
+</div>
+
+<div class="pillars reveal">
+  <div class="pillar">
+    <div class="pnum">P · 01</div>
+    <h3>Demographic steepening</h3>
+    <p>Singapore crosses the super-aged threshold (21%+ aged 65) in 2026. Citizens 65+ already at 20.7%. By 2050, residents 65+ exceed 30%.</p>
+    <div class="data">3.3<span style="font-size:0.5em;color:var(--ink-mute);">×</span></div>
+    <div class="data-lbl">working-age per senior · down from 7.4 in 2010</div>
+  </div>
+  <div class="pillar">
+    <div class="pnum">P · 02</div>
+    <h3>Health and care load</h3>
+    <p>Multimorbidity among 65+ hits 80.6%. Dementia 8.8% overall, one-in-two by 85+. Caregiver burden valued at S$1.28B a year.</p>
+    <div class="data">122<span style="font-size:0.5em;color:var(--ink-mute);">K</span></div>
+    <div class="data-lbl">seniors projected to live alone by 2030</div>
+  </div>
+  <div class="pillar">
+    <div class="pnum">P · 03</div>
+    <h3>Financial shifts</h3>
+    <p>CPF sums rise, retirement age climbs to 64 in July 2026. Yet elderly scam losses average S$37K a head, the highest of any age group.</p>
+    <div class="data">70.8<span style="font-size:0.5em;color:var(--ink-mute);">%</span></div>
+    <div class="data-lbl">workforce participation · ages 55-64, 2025</div>
+  </div>
+  <div class="pillar">
+    <div class="pnum">P · 04</div>
+    <h3>Digital inclusion, uneven</h3>
+    <p>89% smartphone ownership at 60+. Only 1 in 5 aged 55+ use HealthHub. ScamShield remains English-only. The dialect gap is chronic.</p>
+    <div class="data">280<span style="font-size:0.5em;color:var(--ink-mute);">K</span></div>
+    <div class="data-lbl">seniors trained via Seniors Go Digital</div>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- ========== findings ========== -->
+<section>
+<div class="frame">
+
+<div class="sec-head reveal">
+  <span class="eyebrow">02 · Key findings</span>
+  <h2>Eight things the data <em>kept saying</em>.</h2>
+</div>
+
+<div class="findings-intro reveal">
+  <p class="lead">Across over sixty sources — government reports, academic studies, news, NGO fieldwork — eight patterns repeated often enough to count as structural, not anecdotal.</p>
+  <p class="lead" style="color:var(--ink-mute);">These are the findings our concepts need to answer to.</p>
+</div>
+
+<div class="findings">
+
+  <div class="finding reveal">
+    <span class="tag">Coordination</span>
+    <h3>Schemes exist, navigation doesn't</h3>
+    <p>Only 38% of caregivers know about the Caregivers Training Grant. More than 70% use no caregiver services at all. The state built a rich support layer; families can't find the door.</p>
+    <div class="pull">The gap is search versus relationship. SupportGoWhere answers questions you already know to ask.</div>
+  </div>
+
+  <div class="finding reveal">
+    <span class="tag">Presence</span>
+    <h3>Together but apart</h3>
+    <p>Four in five socially isolated seniors live with family. Loneliness affects 34% of older Singaporeans, rising to 43% of those living alone. Proximity isn't presence.</p>
+    <div class="pull">The app that wins on loneliness is the one that gently notices, not the one that broadcasts.</div>
+  </div>
+
+  <div class="finding reveal">
+    <span class="tag">Protection</span>
+    <h3>Seniors are the scam frontier</h3>
+    <p>Average loss per senior victim reached S$37,053 in 2025 — the highest of any age group. Government-officer impersonation scams surged 123.6% that year. ScamShield acts alone; families find out after.</p>
+    <div class="pull">Protection requires a family co-pilot, not a solo shield. And dialect. Always dialect.</div>
+  </div>
+
+  <div class="finding reveal">
+    <span class="tag">Language</span>
+    <h3>The dialect gap is chronic</h3>
+    <p>Chinese dialect use at home fell from 81% in 1980 to 12% in 2020 — yet Hokkien, Teochew and Cantonese remain emotionally resonant for the 75+. Ami is the rare exception. Tamil and Malay content is thinner still.</p>
+    <div class="pull">Voice-first and dialect-native is the unlock for the oldest cohorts.</div>
+  </div>
+
+  <div class="finding reveal">
+    <span class="tag">Health</span>
+    <h3>Multimorbidity is the default</h3>
+    <p>80.6% of community seniors 65+ have multiple conditions. Polypharmacy drives roughly a quarter of avoidable A&E visits. HealthHub shows records; it doesn't coordinate.</p>
+    <div class="pull">The real product isn't a record. It's the choreography between four doctors and three pharmacies.</div>
+  </div>
+
+  <div class="finding reveal">
+    <span class="tag">Future</span>
+    <h3>Tomorrow's seniors look different</h3>
+    <p>Total fertility rate is 0.97. 14.4% of ever-married women are childless. The 2046 cohort of 65+ is digitally fluent, smaller-family, often spouse-only or solo. Built-in family caregivers will be scarce.</p>
+    <div class="pull">Design for the coming cohort, not the current one. The user you're optimising for is 45 today.</div>
+  </div>
+
+  <div class="finding reveal">
+    <span class="tag">Infrastructure</span>
+    <h3>Physical is solved. Social isn't.</h3>
+    <p>100% of MRT stations are barrier-free. 223 Active Ageing Centres cover 8 in 10 seniors. Silver Zones and Friendly Streets are rolling out. The physical substrate is world-class. The social matching layer on top of it is missing.</p>
+    <div class="pull">Software's job is to make the physical infrastructure feel alive.</div>
+  </div>
+
+  <div class="finding reveal">
+    <span class="tag">Trust</span>
+    <h3>Gov badging is the moat</h3>
+    <p>Older adults trust tools recommended by MOH. <em>"If MOH recommends an app, I feel it must be legitimate"</em> — this quote repeats across qualitative studies. Third-party apps struggle to earn this on their own.</p>
+    <div class="pull">Win the government endorsement conversation early, or lose it quietly later.</div>
+  </div>
+
+</div>
+
+</div>
+</section>
+
+<!-- ========== the gaps ========== -->
+<section>
+<div class="frame">
+
+<div class="gaps-band reveal">
+  <span class="eyebrow" style="color: #E8C69C;">03 · White space</span>
+  <h2>Nine gaps where a new app could <em>actually matter</em>.</h2>
+  <p class="lead">These are the unmet needs that survived the research. Every concept on the next page answers at least one of them.</p>
+
+  <div class="gaps-list">
+    <div class="gap-cell">
+      <span class="n">G · 01</span>
+      <h4>Caregiver coordination</h4>
+      <p>The S$1.28B problem. No tool links family, MDW, GP, polyclinic, AIC case manager.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 02</span>
+      <h4>Dialect voice interface</h4>
+      <p>Hokkien, Teochew, Cantonese, Malay, Tamil — voice-first removes literacy and dexterity barriers.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 03</span>
+      <h4>Family-oversight scam shield</h4>
+      <p>Real-time family alerts on risky calls and transfers. Soft-veto windows. Multilingual.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 04</span>
+      <h4>Proactive companionship</h4>
+      <p>Daily dialect check-ins for the 75+ living alone or spouse-only. Escalation when something shifts.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 05</span>
+      <h4>Hyperlocal mutual aid</h4>
+      <p>Block-level help matching. Heat-day check-ins. Intergenerational purpose.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 06</span>
+      <h4>Medication choreography</h4>
+      <p>Eight pills, four doctors, three pharmacies. Someone has to conduct the orchestra.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 07</span>
+      <h4>Pre-retirement reality check</h4>
+      <p>Model retirement through 95 with parent care, adult kids, climate costs — not just CPF balance.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 08</span>
+      <h4>Right-size and move</h4>
+      <p>Compare Lease Buyback, Silver Housing Bonus, 2-room Flexi and CCA. Handle the grief too.</p>
+    </div>
+    <div class="gap-cell">
+      <span class="n">G · 09</span>
+      <h4>Good-ending companion</h4>
+      <p>ACP, palliative wishes, faith-fit rites. Only 26,627 ACPs registered across 8 years.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- ========== concepts ========== -->
+<section id="concepts">
+<div class="frame">
+
+<div class="sec-head reveal">
+  <span class="eyebrow">04 · The ten concepts</span>
+  <h2>Three clusters, ten apps, <em>one trust layer</em>.</h2>
+  <p class="lead">Each concept answers one or more gaps. They're designed as siblings — shared identity model, shared caregiver co-pilot pattern, shared Singpass-grade trust signal — not as competitors.</p>
+</div>
+
+<div class="concepts-grid reveal">
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">01</span><span class="kind">Coordination</span></div>
+    <h3>KinCare <em>— family care OS</em></h3>
+    <p class="tagline">WhatsApp chaos and scheme confusion, replaced by one shared care plan.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>Sandwich-generation adult children, coordinating siblings, MDW, GP, AIC.</p></div>
+      <div><span class="label">Against gap</span><p>G · 01</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Shared care timeline</span><span>Scheme radar</span><span>Trusted person flow</span><span>MDW co-pilot</span><span>Care handoff packs</span><span>Cost tracker</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">02</span><span class="kind">Presence</span></div>
+    <h3>Ah Gong <em>— dialect voice cockpit</em></h3>
+    <p class="tagline">Speak Hokkien, Teochew, Cantonese, Malay, Tamil. The app does the rest.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>The 70–85 year-old who prefers dialect, reads slowly, and won't download five apps.</p></div>
+      <div><span class="label">Against gap</span><p>G · 02</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>One big button</span><span>Dialect-native</span><span>Read-aloud inbox</span><span>Scam-aware</span><span>Voice-log symptoms</span><span>Works on S$5 plans</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">03</span><span class="kind">Protection</span></div>
+    <h3>GuardRail <em>— scam shield with family</em></h3>
+    <p class="tagline">When the scammer calls Ma, the family sees it happening in real time.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>Senior primary, adult child co-pilot. Dual user model throughout.</p></div>
+      <div><span class="label">Against gap</span><p>G · 03</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Family red alert</span><span>Soft veto window</span><span>Dialect warnings</span><span>One-tap 1799</span><span>Teach-me mode</span><span>Bank kill-switch</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">04</span><span class="kind">Presence</span></div>
+    <h3>Kopi <em>— proactive companion</em></h3>
+    <p class="tagline">A small daily presence — in dialect — that notices when something's off.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>The 75+ living alone or spouse-only. Secondary: the AAC case manager.</p></div>
+      <div><span class="label">Against gap</span><p>G · 04</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Morning check-in</span><span>Reminiscence mode</span><span>Silent escalation</span><span>Hawker buddy</span><span>News in dialect</span><span>Grandchild bridge</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">05</span><span class="kind">Presence</span></div>
+    <h3>Jumpa <em>— hyperlocal mutual aid</em></h3>
+    <p class="tagline">Young-old retirees have time and skills. The block needs them. Match.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>The 65–74 recently retired. Secondary: the isolated 80+ on the same block.</p></div>
+      <div><span class="label">Against gap</span><p>G · 05</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Block-level matching</span><span>Skill circles</span><span>Silver mentor</span><span>AAC passport</span><span>Climate check-in</span><span>Getai mode</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">06</span><span class="kind">Presence</span></div>
+    <h3>Yuán <em>— memory and legacy</em></h3>
+    <p class="tagline">My Legacy handles the will. Yuán handles the voice, the recipes, the stories.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>The 60–80 while cognitively strong. Secondary: child and grandchild.</p></div>
+      <div><span class="label">Against gap</span><p>G · 09 (emotional layer)</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Guided life interview</span><span>Recipe vault</span><span>Letter-to-future</span><span>Dementia bridge</span><span>Family tree</span><span>My Legacy hand-off</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">07</span><span class="kind">Coordination</span></div>
+    <h3>Ubat <em>— medication co-pilot</em></h3>
+    <p class="tagline">Eight pills, four doctors, three pharmacies. Untangled.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>The 70+ with 3+ chronic conditions. Secondary: MDW, adult child.</p></div>
+      <div><span class="label">Against gap</span><p>G · 06</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Photo-scan pill check</span><span>Interaction radar</span><span>Auto-refill mesh</span><span>Appointment braid</span><span>Fall-risk watch</span><span>A&E handoff QR</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">08</span><span class="kind">Protection</span></div>
+    <h3>Bao <em>— retirement reality check</em></h3>
+    <p class="tagline">You're 52, CPF looks fine, parents need care, kids just moved back home. Now what?</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>The 45–64 pre-retiree, especially sandwich-generation women.</p></div>
+      <div><span class="label">Against gap</span><p>G · 07</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Full-life simulator</span><span>Scheme stacker</span><span>Parent care mirror</span><span>Right-size pathway</span><span>Work-longer toggle</span><span>What-if board</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">09</span><span class="kind">Coordination</span></div>
+    <h3>Pindah <em>— right-size companion</em></h3>
+    <p class="tagline">Downsizing a 4-room of 40 years is grief, logistics, paperwork. Hold the hand.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>60–75 considering right-sizing. Secondary: adult children nudging the conversation.</p></div>
+      <div><span class="label">Against gap</span><p>G · 08</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Four-path compare</span><span>Memory move</span><span>Neighbourhood match</span><span>Paperwork caddy</span><span>Right-size grief</span><span>Move-day concierge</span>
+    </div>
+  </div>
+
+  <div class="concept-card">
+    <div class="num-bar"><span class="num">10</span><span class="kind">Coordination</span></div>
+    <h3>Lentera <em>— good-ending companion</em></h3>
+    <p class="tagline">ACP, palliative wishes, faith-fit rites. The conversations that must happen, gently.</p>
+    <div class="who-what">
+      <div><span class="label">For</span><p>The 65+ with chronic or terminal diagnosis. Secondary: the family.</p></div>
+      <div><span class="label">Against gap</span><p>G · 09</p></div>
+    </div>
+    <div class="features">
+      <span class="label">Key features</span>
+      <span>Gentle ACP path</span><span>Faith-fit planner</span><span>Comfort wishes</span><span>Hospice locator</span><span>Bereavement flow</span><span>Safe-room mode</span>
+    </div>
+  </div>
+
+</div>
+
+</div>
+</section>
+
+<!-- ========== priority matrix ========== -->
+<section id="matrix">
+<div class="frame">
+
+<div class="sec-head reveal">
+  <span class="eyebrow">05 · Priority matrix</span>
+  <h2>Where each concept <em>actually sits</em>.</h2>
+  <p class="lead">Plotting the ten along need severity and build feasibility makes the order of attack legible. Colour encodes cluster. The upper-right is where to start shipping.</p>
+</div>
+
+<div class="matrix-wrap reveal">
+  <div class="matrix-legend">
+    <span><span class="dot" style="background:var(--violet);"></span>Coordination</span>
+    <span><span class="dot" style="background:var(--teal);"></span>Presence</span>
+    <span><span class="dot" style="background:var(--accent);"></span>Protection</span>
+  </div>
+
+  <div class="matrix-chart">
+    <div class="matrix-yaxis">Need severity →</div>
+    <div class="matrix-grid">
+      <span class="matrix-quad-label" style="top: 10px; left: 14px;">High need · hard build</span>
+      <span class="matrix-quad-label" style="top: 10px; right: 14px;">High need · easy build</span>
+      <span class="matrix-quad-label" style="bottom: 10px; left: 14px;">Low need · hard build</span>
+      <span class="matrix-quad-label" style="bottom: 10px; right: 14px;">Low need · easy build</span>
+
+      <div class="matrix-dot coord" style="left: 70%; top: 14%;"><div class="circle">01</div><div class="name">KinCare</div></div>
+      <div class="matrix-dot pres" style="left: 78%; top: 22%;"><div class="circle">02</div><div class="name">Ah Gong</div></div>
+      <div class="matrix-dot prot" style="left: 82%; top: 12%;"><div class="circle">03</div><div class="name">GuardRail</div></div>
+      <div class="matrix-dot pres" style="left: 40%; top: 30%;"><div class="circle">04</div><div class="name">Kopi</div></div>
+      <div class="matrix-dot pres" style="left: 84%; top: 46%;"><div class="circle">05</div><div class="name">Jumpa</div></div>
+      <div class="matrix-dot pres" style="left: 52%; top: 56%;"><div class="circle">06</div><div class="name">Yuán</div></div>
+      <div class="matrix-dot coord" style="left: 56%; top: 18%;"><div class="circle">07</div><div class="name">Ubat</div></div>
+      <div class="matrix-dot prot" style="left: 30%; top: 40%;"><div class="circle">08</div><div class="name">Bao</div></div>
+      <div class="matrix-dot coord" style="left: 64%; top: 48%;"><div class="circle">09</div><div class="name">Pindah</div></div>
+      <div class="matrix-dot coord" style="left: 22%; top: 24%;"><div class="circle">10</div><div class="name">Lentera</div></div>
+    </div>
+    <div class="matrix-xaxis">← Build feasibility →</div>
+  </div>
+
+  <p class="lead" style="margin-top: 32px; max-width: 680px; font-size: 17px;">User pick: <strong>Ubat</strong> and <strong>Jumpa</strong>. A strong pair — Jumpa is the community-trust acquisition engine; Ubat is the deeper clinical value capture. They share a design system, a trust layer, and a caregiver co-pilot pattern.</p>
+</div>
+
+</div>
+</section>
+
+<!-- ========== UBAT DEEP DIVE ========== -->
+<section id="ubat">
+<div class="frame">
+
+<div class="deepdive">
+
+<div class="dd-hero reveal">
+  <div>
+    <div class="dd-label">Deep dive · 01</div>
+    <h2 class="display">Ubat. <em>The medication</em> co-pilot.</h2>
+  </div>
+  <p class="tagline">Eight pills. Four doctors. Three pharmacies. Two grandchildren reminding. One app that actually helps.</p>
+</div>
+
+<!-- day in life -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">A · Day in the life</span>
+  <h3>Auntie Rosnah, 72 <em>— a Tuesday</em></h3>
+</div>
+
+<div class="reveal">
+<div class="persona">
+<strong>Auntie Rosnah, 72</strong> · Bedok North, 3-room HDB · Type 2 diabetes, hypertension, osteoarthritis · Sees polyclinic GP, heart specialist at NHCS, eye doctor at SNEC · 8 regular meds plus occasional painkiller · Daughter Aisha (44) in Woodlands; son Faizal (38) in KL · Speaks Malay, some English
+</div>
+
+<div class="timeline">
+  <div class="tl-step">
+    <div class="tl-time">7:02 am · breakfast</div>
+    <div class="tl-event">Ubat pings — missing morning metformin</div>
+    <p class="tl-detail">Rosnah opens Ubat. Today's tray shows green ticks for 5 of 6 morning meds; metformin slot is amber. She points the camera at the pill; Ubat confirms it's metformin 500mg and logs it. Voice note in Malay: "Knee a bit stiff today."</p>
+    <span class="tl-save">Caught a skipped dose before it became a pattern</span>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">9:15 am · pharmacy pickup</div>
+    <div class="tl-event">Refill ready at Bedok polyclinic</div>
+    <p class="tl-detail">Ubat had auto-detected her amlodipine was running low 4 days ago, filed the refill through HealthHub, and routed to Bedok Polyclinic pharmacy. Push notification: "Ready after 9am. Queue ticket A42."</p>
+    <span class="tl-save">No wasted trip, no emergency out-of-stock</span>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">11:40 am · NHCS specialist</div>
+    <div class="tl-event">Cardiologist prescribes bisoprolol</div>
+    <p class="tl-detail">At the visit, Ubat's interaction radar flashes yellow: the new bisoprolol plus her existing amlodipine raises mild fall risk. She shows the screen; the cardiologist adjusts the dose and notes it. Ubat auto-updates the full med list.</p>
+    <span class="tl-save">Avoided a 3-month silent drug interaction</span>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">2:30 pm · home, resting</div>
+    <div class="tl-event">Appointment braid flags a clash</div>
+    <p class="tl-detail">Ubat shows Rosnah's next 60 days. The SNEC eye appointment on the 24th clashes with a polyclinic blood test on the 23rd that needs fasting. Ubat suggests swapping the blood test to the 21st — one tap books it.</p>
+    <span class="tl-save">Stopped a double-journey day and a fasting error</span>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">6:45 pm · daughter calls</div>
+    <div class="tl-event">Aisha checks the co-pilot view</div>
+    <p class="tl-detail">Aisha opens Ubat's caregiver view from Woodlands: today's adherence, the new bisoprolol, the knee comment, upcoming appointments, Tier-1 refill cost next month (S$4.30). She voice-notes Rosnah in Malay: "Mak, let me come with you to SNEC next week."</p>
+    <span class="tl-save">Remote care without remote parenting</span>
+  </div>
+  <div class="tl-step">
+    <div class="tl-time">10:10 pm · bedtime</div>
+    <div class="tl-event">A&E QR prepped for the drawer</div>
+    <p class="tl-detail">Ubat prints a fresh QR card — meds, allergies, ACP status, ICE contact. Rosnah keeps it in her handbag. If she falls tomorrow, the paramedic scans it in seconds.</p>
+    <span class="tl-save">The unplanned moment, planned for</span>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- key screens -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">B · Key screens</span>
+  <h3>Three views, <em>three users</em></h3>
+</div>
+
+<div class="screens-row reveal">
+
+<div class="phone-shell">
+<div class="phone-caption">Senior home · morning</div>
+<div class="phone">
+<div class="phone-head"><span>9:42</span><span>●●●●</span></div>
+<div class="phone-title">Selamat pagi, Rosnah</div>
+<div class="phone-sub">Pagi · 6 of 7 done</div>
+<div class="pill-row"><div class="pill-left"><div class="pill-dot done">✓</div><div><div class="pill-name">Amlodipine</div><div class="pill-dose">5 mg · 7:00</div></div></div></div>
+<div class="pill-row"><div class="pill-left"><div class="pill-dot done">✓</div><div><div class="pill-name">Simvastatin</div><div class="pill-dose">20 mg · 7:00</div></div></div></div>
+<div class="pill-row"><div class="pill-left"><div class="pill-dot miss">!</div><div><div class="pill-name">Metformin</div><div class="pill-dose">500 mg · 7:00</div></div></div></div>
+<div class="pill-row"><div class="pill-left"><div class="pill-dot done">✓</div><div><div class="pill-name">Aspirin</div><div class="pill-dose">100 mg · 8:00</div></div></div></div>
+<div class="pill-row"><div class="pill-left"><div class="pill-dot next">○</div><div><div class="pill-name">Paracetamol</div><div class="pill-dose">500 mg · 1:00</div></div></div></div>
+<div class="phone-btn">Tekan dan cakap</div>
+</div>
+</div>
+
+<div class="phone-shell">
+<div class="phone-caption">Photo-scan confirmation</div>
+<div class="phone">
+<div class="phone-head"><span>9:43</span><span>●●●●</span></div>
+<div class="phone-title">Is this metformin?</div>
+<div class="phone-sub">Hold steady, tap to scan</div>
+<div class="scan-area"><div class="scan-pill"></div></div>
+<div class="scan-result">
+<p class="head">✓ Metformin 500 mg</p>
+<p>Matches your prescription from Bedok Polyclinic, 12 Mar 2026.</p>
+</div>
+<div class="scan-warn">
+<p class="head">Note for your GP</p>
+<p>This clashes mildly with new bisoprolol. Show at next visit.</p>
+</div>
+<div class="phone-btn teal">Log dose · 9:43</div>
+</div>
+</div>
+
+<div class="phone-shell">
+<div class="phone-caption">Caregiver view · Aisha</div>
+<div class="phone">
+<div class="phone-head"><span>6:45 pm</span><span>●●●●</span></div>
+<div class="phone-title">Mak, today</div>
+<div class="phone-sub">Shared by Rosnah · Bedok</div>
+<div class="cg-metric"><div class="cg-lbl">Adherence · 7 days</div><div class="cg-val">92%</div><div class="cg-note">1 missed · metformin Mon</div></div>
+<div class="cg-metric"><div class="cg-lbl">Next appointment</div><div class="cg-val">SNEC · 24 Mar</div><div class="cg-note">You're tagged as companion</div></div>
+<div class="cg-metric">
+<div class="cg-lbl">Today's timeline</div>
+<div class="event-row"><span class="time">11:40</span><span class="txt">New Rx: bisoprolol 2.5mg</span></div>
+<div class="event-row"><span class="time">14:30</span><span class="txt">Rebooked blood test → 21 Mar</span></div>
+<div class="event-row"><span class="time">18:20</span><span class="txt">Knee stiffness noted</span></div>
+</div>
+<div class="phone-btn violet">Send voice note to Mak</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- integrations -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">C · Integrations</span>
+  <h3>What Ubat <em>plugs into</em></h3>
+</div>
+
+<div class="reveal">
+
+<div class="int-tier">
+<div class="int-tier-head">
+<h4>MVP · launch blockers</h4>
+<span class="note">Without these, Ubat is a notepad.</span>
+</div>
+<div class="int-grid">
+<div class="int-cell mvp"><h5>Singpass + MyInfo</h5><p>Identity, trusted-person access, NRIC auto-fill.</p></div>
+<div class="int-cell mvp"><h5>HealthHub API</h5><p>Medication list, appointments, labs, vaccination records.</p></div>
+<div class="int-cell mvp"><h5>NEHR (via Synapxe)</h5><p>Allergies, diagnoses, discharge summaries across public system.</p></div>
+<div class="int-cell mvp"><h5>Cluster pharmacies</h5><p>SingHealth, NHG, NUHS — refill status, queue tickets.</p></div>
+<div class="int-cell mvp"><h5>HSA drug database</h5><p>Pill-ID photo matching, interaction and allergy rules.</p></div>
+<div class="int-cell mvp"><h5>LifeSG / SupportGoWhere</h5><p>CTG, Home Caregiving Grant eligibility.</p></div>
+</div>
+</div>
+
+<div class="int-tier">
+<div class="int-tier-head">
+<h4>Phase 2 · depth and revenue</h4>
+<span class="note">12–18 months from launch.</span>
+</div>
+<div class="int-grid">
+<div class="int-cell p2"><h5>Private GPs</h5><p>Via AIC HealthServe and private EMR vendors.</p></div>
+<div class="int-cell p2"><h5>Retail pharmacies</h5><p>Guardian, Unity, Watsons — refill and price compare.</p></div>
+<div class="int-cell p2"><h5>MediSave / CHAS</h5><p>Claim tracking and subsidy view at pickup.</p></div>
+<div class="int-cell p2"><h5>CareShield Life</h5><p>Claims status, ADL assessment reminders.</p></div>
+<div class="int-cell p2"><h5>Wearables</h5><p>Apple Health, Google Fit, Fitbit — BP, HR, falls.</p></div>
+<div class="int-cell p2"><h5>Telemed</h5><p>Doctor Anywhere, WhiteCoat, MyDoc — prescription sync.</p></div>
+</div>
+</div>
+
+<div class="int-tier">
+<div class="int-tier-head">
+<h4>Phase 3 · v2 ambition</h4>
+<span class="note">Where the moat forms.</span>
+</div>
+<div class="int-grid">
+<div class="int-cell p3"><h5>TCM and herbal registry</h5><p>Herb-drug interactions — a gap in NEHR today.</p></div>
+<div class="int-cell p3"><h5>Polyclinic chatbot handoff</h5><p>Book via HealthierSG flow, auto-reschedule conflicts.</p></div>
+<div class="int-cell p3"><h5>SCDF MyResponder</h5><p>A&E QR handoff, fall-response escalation.</p></div>
+<div class="int-cell p3"><h5>Home-care operators</h5><p>Homage, Jaga-Me — med admin logs, shift handover.</p></div>
+<div class="int-cell p3"><h5>Hospice and palliative</h5><p>HCA, Dover Park, Assisi — comfort-focused med switching.</p></div>
+<div class="int-cell p3"><h5>Smart-pillbox OEMs</h5><p>Hero, MedMinder — hardware adherence partners.</p></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- business -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">D · Business model & TAM</span>
+  <h3>Three revenue tracks, <em>healthcare-funded</em></h3>
+</div>
+
+<div class="reveal">
+
+<p class="lead" style="max-width: 720px; margin-bottom: 12px;">Addressable base: ~850K seniors with multimorbidity today, ~1.25M by 2046. Realistic active users in 5 years: 100K–250K seniors plus 150K–400K caregivers.</p>
+
+<div class="biz-grid">
+<div class="biz-card">
+<div class="biz-num">Track · 01</div>
+<h4>B2B2C with healthcare operators</h4>
+<p>License to polyclinics, clusters (SingHealth, NHG, NUHS), private GP networks, home-care operators. Value justified by reduced readmissions and adherence uplift.</p>
+<div class="val">S$3–8 / user / month</div>
+</div>
+<div class="biz-card">
+<div class="biz-num">Track · 02</div>
+<h4>Payer partnerships</h4>
+<p>CareShield Life supplementary insurers — NTUC Income, Great Eastern, Prudential — pay for adherence data that underwrites better policies.</p>
+<div class="val">S$12–30 / user / year</div>
+</div>
+<div class="biz-card">
+<div class="biz-num">Track · 03</div>
+<h4>Direct B2C caregiver tier</h4>
+<p>Premium for multi-sibling coordination, TCM interactions, wearables integration. Core stays free for seniors, forever.</p>
+<div class="val">S$6–12 / month</div>
+</div>
+</div>
+
+<div class="tam-bar">
+<span class="eyebrow">Five-year TAM ceiling</span>
+<p>Singapore alone: <em>S$180–300M</em> ARR. Regional expansion to Japan, Hong Kong, Taiwan and KL upper-middle: another <em>3–5×</em> multiple. Exit archetype: acquisition by a cluster, a regional insurer, or a pharmacy parent.</p>
+</div>
+</div>
+</div>
+
+<!-- roadmap -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">E · Build roadmap</span>
+  <h3>Thirty-six months, <em>four phases</em></h3>
+</div>
+
+<div class="roadmap reveal">
+<div class="rm-phase">
+<div class="p">0–6 months</div>
+<h4>Foundations</h4>
+<ul>
+<li>Core team of 8: eng, clinical, pharmacist, design</li>
+<li>Singpass + HealthHub sandbox access</li>
+<li>One polyclinic cluster partnership</li>
+<li>Pilot cohort: 200 seniors, 200 caregivers</li>
+<li>Malay + English at launch</li>
+<li>Photo-scan, adherence, caregiver view, A&E QR</li>
+</ul>
+</div>
+<div class="rm-phase">
+<div class="p">6–12 months</div>
+<h4>Validation</h4>
+<ul>
+<li>Measure adherence uplift: target +15pp</li>
+<li>Track avoided interactions: 1 per 20 users</li>
+<li>Caregiver NPS target: 50+</li>
+<li>Add appointment braid</li>
+<li>Expand to Mandarin and Tamil</li>
+<li>Private GP integration pilot</li>
+</ul>
+</div>
+<div class="rm-phase">
+<div class="p">12–24 months</div>
+<h4>Scale</h4>
+<ul>
+<li>Full NEHR coverage via Synapxe</li>
+<li>Retail pharmacy integrations</li>
+<li>MediSave and CareShield Life flows</li>
+<li>Wearable ingestion</li>
+<li>Dialect voice via AI Singapore models</li>
+<li>Target 50K paying caregivers</li>
+</ul>
+</div>
+<div class="rm-phase">
+<div class="p">24–36 months</div>
+<h4>Moat</h4>
+<ul>
+<li>Proprietary TCM-herbal interaction database</li>
+<li>Homage and Jaga-Me integrations</li>
+<li>Smart pillbox partnerships</li>
+<li>Polyclinic scheduling write-back</li>
+<li>Regional: Hong Kong first, Japan second</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+</section>
+
+<!-- ========== JUMPA DEEP DIVE ========== -->
+<section id="jumpa">
+<div class="frame">
+
+<div class="deepdive">
+
+<div class="dd-hero reveal">
+  <div>
+    <div class="dd-label">Deep dive · 02</div>
+    <h2 class="display">Jumpa. <em>Hyperlocal</em> purpose.</h2>
+  </div>
+  <p class="tagline">Young-old retirees have time, skills, and nothing to do. The block needs them. Match.</p>
+</div>
+
+<!-- day in life -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">A · Day in the life</span>
+  <h3>Uncle Tan, 67 <em>— a retirement Tuesday</em></h3>
+</div>
+
+<div class="reveal">
+<div class="persona">
+<strong>Uncle Tan, 67</strong> · Ang Mo Kio, 4-room HDB · Retired mechanical engineer, 18 months out · Wife still teaching (64) · Son overseas · Speaks Mandarin, Hokkien, English · Bored but won't admit it · AAC two blocks away, visited twice
+</div>
+
+<div class="timeline">
+<div class="tl-step">
+<div class="tl-time">7:30 am · kopitiam</div>
+<div class="tl-event">Morning board · 3 new matches on his block</div>
+<p class="tl-detail">Over kopi-o, Tan opens Jumpa. Block 451: a P4 boy needs help with maths homework, weekly. Block 452: Aunty Goh's ceiling fan is making noise. Block 448: Mr Krishnan wants a walking buddy. All within 200m.</p>
+<span class="tl-save">Purpose within walking distance</span>
+</div>
+<div class="tl-step">
+<div class="tl-time">10:00 am · Aunty Goh's flat</div>
+<div class="tl-event">Fan fixed in 12 minutes</div>
+<p class="tl-detail">Tan taps "On my way" — Jumpa shares his ETA, his verified profile (ex-engineer, 4 past helps), and a one-tap "Confirm safe arrival" for Aunty Goh's daughter in Perth. Loose screw, done. Aunty Goh insists on kopi.</p>
+<span class="tl-save">Trust at the door without strangers in the home</span>
+</div>
+<div class="tl-step">
+<div class="tl-time">2:15 pm · AAC craft room</div>
+<div class="tl-event">Tutors Wei Jie · first of 8 sessions</div>
+<p class="tl-detail">The AAC hosts the tutoring — neutral ground, safeguarded. Wei Jie's mum drops him off. Tan walks through long division in Mandarin. At the end, Jumpa auto-logs 1 hour toward his Active Ageing Credits and SG Cares dashboard.</p>
+<span class="tl-save">Volunteering without the admin drag</span>
+</div>
+<div class="tl-step">
+<div class="tl-time">4:00 pm · heat alert, red</div>
+<div class="tl-event">Jumpa pings 3 vulnerable neighbours</div>
+<p class="tl-detail">NEA red-alert triggers a check-in cascade. Tan is auto-assigned Mr Krishnan (82, lives alone, no aircon). Tan walks over, brings a cold drink, suggests the AAC's cool room. Mr Krishnan joins. They play chess.</p>
+<span class="tl-save">The cascade caught a silent risk</span>
+</div>
+<div class="tl-step">
+<div class="tl-time">6:30 pm · home</div>
+<div class="tl-event">End-of-day wrap</div>
+<p class="tl-detail">Jumpa shows: 3 helps today, 14 this month. A new badge: "Block Pillar — 10 neighbours helped." His wife sees the summary. For the first time in a year, she notices he's not restless at dinner.</p>
+<span class="tl-save">Retirement with shape, not drift</span>
+</div>
+<div class="tl-step">
+<div class="tl-time">Week 8 · quiet graduation</div>
+<div class="tl-event">From helper to AAC core</div>
+<p class="tl-detail">Over 8 weeks, Tan's Jumpa activity surfaces him to the AAC manager as a high-potential volunteer. She invites him to co-lead a monthly "Repair Kopitiam" session. He says yes. Jumpa was the on-ramp; the AAC is the destination.</p>
+<span class="tl-save">Jumpa wins when it hands users off to community</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- key screens -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">B · Key screens</span>
+  <h3>The block board, <em>and who sees what</em></h3>
+</div>
+
+<div class="screens-row reveal">
+
+<div class="phone-shell">
+<div class="phone-caption">Morning board · Uncle Tan</div>
+<div class="phone">
+<div class="phone-head"><span>7:32</span><span>●●●●</span></div>
+<div class="phone-title">Good morning, Tan</div>
+<div class="phone-sub">Blk 445–460 · 3 new</div>
+<div class="match">
+<div class="match-top"><div class="match-title">Ceiling fan noise</div><div class="match-dist">80m</div></div>
+<div class="match-who">Aunty Goh · Blk 452 · 1 helper needed</div>
+<span class="match-tag">Handy</span>
+</div>
+<div class="match">
+<div class="match-top"><div class="match-title">P4 maths tutor</div><div class="match-dist">150m</div></div>
+<div class="match-who">Wei Jie · 8 weekly sessions · at AAC</div>
+<span class="match-tag">Teaching</span>
+</div>
+<div class="match">
+<div class="match-top"><div class="match-title">Walk buddy</div><div class="match-dist">200m</div></div>
+<div class="match-who">Mr Krishnan · Blk 448 · Mon/Wed/Fri</div>
+<span class="match-tag">Companion</span>
+</div>
+<div class="match">
+<div class="match-top"><div class="match-title">Carry groceries up</div><div class="match-dist">60m</div></div>
+<div class="match-who">Aunty Lim · Blk 451 · Today 11am</div>
+<span class="match-tag urgent">Today</span>
+</div>
+<div class="phone-btn teal">I'll help with the fan</div>
+</div>
+</div>
+
+<div class="phone-shell">
+<div class="phone-caption">On the way · transparency</div>
+<div class="phone">
+<div class="phone-head"><span>9:58</span><span>●●●●</span></div>
+<div class="phone-title">On your way</div>
+<div class="phone-sub">Aunty Goh · Blk 452 #05-12</div>
+<div class="off-card">
+<p><strong>You arrive</strong> in ~4 min</p>
+<p><strong>Aunty's daughter</strong> in Perth notified</p>
+<p><strong>Jumpa-verified</strong> · Singpass + 4 past helps</p>
+</div>
+<div class="off-card">
+<p style="font-weight:500;color:var(--ink);margin-bottom:6px;">Quick safety check</p>
+<p>• Help at Aunty's door, not inside alone if she isn't home</p>
+<p>• Don't pay or receive money for this task</p>
+<p>• Tap "safe arrival" when you're there</p>
+</div>
+<div class="off-card" style="background:var(--teal-bg);">
+<p style="color:var(--teal);">After the help, Aunty can thank you — no cash, no ratings war.</p>
+</div>
+<div class="phone-btn teal">Tap when I arrive</div>
+</div>
+</div>
+
+<div class="phone-shell">
+<div class="phone-caption">AAC manager dashboard</div>
+<div class="phone">
+<div class="phone-head"><span>6:45 pm</span><span>●●●●</span></div>
+<div class="phone-title">AAC Ang Mo Kio 445</div>
+<div class="phone-sub">Week 12 · March 2026</div>
+<div class="heat-banner">
+<div class="h">Heat red-alert today</div>
+<div class="s">7 vulnerable seniors on your block · 5 checked, 2 pending</div>
+</div>
+<div class="stat-grid">
+<div class="stat-mini"><div class="l">Active helpers</div><div class="v">34</div></div>
+<div class="stat-mini"><div class="l">This week's helps</div><div class="v">126</div></div>
+<div class="stat-mini"><div class="l">Pending matches</div><div class="v">8</div></div>
+<div class="stat-mini"><div class="l">High-risk alone</div><div class="v">12</div></div>
+</div>
+<div style="font-size:12px;font-weight:500;margin:10px 0 6px;color:var(--ink);">At-risk watchlist</div>
+<div class="list-row"><span class="n">Mr Krishnan, 82</span><span class="s">Checked · Tan</span></div>
+<div class="list-row"><span class="n">Aunty Neo, 79</span><span class="s risk">No contact 48h</span></div>
+<div class="list-row"><span class="n">Mr Salleh, 75</span><span class="s">Checked · daughter</span></div>
+<div class="list-row"><span class="n">Aunty Tan, 84</span><span class="s risk">Pending helper</span></div>
+<div class="phone-btn violet">Assign helper to Aunty Neo</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- integrations -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">C · Integrations</span>
+  <h3>All local, <em>all partnership-led</em></h3>
+</div>
+
+<div class="reveal">
+
+<div class="int-tier">
+<div class="int-tier-head">
+<h4>MVP · the foundation</h4>
+<span class="note">Partnership-first go-to-market.</span>
+</div>
+<div class="int-grid">
+<div class="int-cell mvp"><h5>AIC + AAC network</h5><p>223 Active Ageing Centres — the anchor venues and managers.</p></div>
+<div class="int-cell mvp"><h5>Singpass MyInfo</h5><p>Identity verification so trust at the door is solved on day one.</p></div>
+<div class="int-cell mvp"><h5>SG Cares / NVPC</h5><p>Volunteer hour logging, Giving.sg donations, existing profiles.</p></div>
+<div class="int-cell mvp"><h5>PA / RC / Grassroots</h5><p>Block-level legitimacy, co-branded launches per precinct.</p></div>
+<div class="int-cell mvp"><h5>Lions Befrienders</h5><p>Escalation path for seniors who screen as isolated or at-risk.</p></div>
+<div class="int-cell mvp"><h5>NEA heat + dengue</h5><p>Triggers the climate check-in cascade.</p></div>
+</div>
+</div>
+
+<div class="int-tier">
+<div class="int-tier-head">
+<h4>Phase 2 · depth and dollars</h4>
+<span class="note">Formalises the loop.</span>
+</div>
+<div class="int-grid">
+<div class="int-cell p2"><h5>Silver Volunteer Fund</h5><p>Small grants for group activities surfaced on Jumpa.</p></div>
+<div class="int-cell p2"><h5>Active Ageing Credits</h5><p>Auto-redemption for verified volunteer hours.</p></div>
+<div class="int-cell p2"><h5>MOE / schools</h5><p>Intergenerational tutoring with safeguarding built in.</p></div>
+<div class="int-cell p2"><h5>CDC Vouchers</h5><p>Local hawker and shop discounts for verified helpers.</p></div>
+<div class="int-cell p2"><h5>Carousell / Pass-It-On</h5><p>Neighbour-to-neighbour donation of items.</p></div>
+<div class="int-cell p2"><h5>Dementia SG / CARA</h5><p>Safe-return and dementia-friendly volunteer training.</p></div>
+</div>
+</div>
+
+<div class="int-tier">
+<div class="int-tier-head">
+<h4>Phase 3 · platform moat</h4>
+<span class="note">The handoff graph.</span>
+</div>
+<div class="int-grid">
+<div class="int-cell p3"><h5>SCDF MyResponder</h5><p>Trained Jumpa volunteers flag for first-response CPR / AED.</p></div>
+<div class="int-cell p3"><h5>HDB + Town Councils</h5><p>Block-level co-design of Friendly Streets activation.</p></div>
+<div class="int-cell p3"><h5>MSF / SGEnable</h5><p>Cross-pollination with persons-with-disability mutual aid.</p></div>
+<div class="int-cell p3"><h5>Corporate CSR</h5><p>Employees volunteer in Jumpa micro-slots during lunch.</p></div>
+<div class="int-cell p3"><h5>KinCare / Ubat</h5><p>Cross-app handoff when isolation or clinical risk surface.</p></div>
+<div class="int-cell p3"><h5>Polyclinic social Rx</h5><p>GPs "prescribe" Jumpa for mild depression or loneliness.</p></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- business -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">D · Business model & TAM</span>
+  <h3>Not transactional — <em>structurally different</em></h3>
+</div>
+
+<div class="reveal">
+
+<p class="lead" style="max-width: 720px; margin-bottom: 12px;">Addressable base: ~700K aged 60–74 (young-old, time and skill) plus ~150K isolated seniors as recipients. Year 5 realistic active: 80K–150K helpers, 50K–100K recipients. <strong>No cash exchange between users, ever.</strong> It would kill the mutual-aid dynamic and open scam vectors.</p>
+
+<div class="biz-grid">
+<div class="biz-card">
+<div class="biz-num">Track · 01</div>
+<h4>Government contract</h4>
+<p>MOH, MSF, AIC license Jumpa as the volunteer-matching and social-prescription backbone. Per-AAC or per-town-council pricing.</p>
+<div class="val">S$30–80K / AAC / year</div>
+</div>
+<div class="biz-card">
+<div class="biz-num">Track · 02</div>
+<h4>Corporate CSR</h4>
+<p>Companies pay for an employee-volunteering module that plugs staff into Jumpa micro-slots. Strong ESG reporting signal.</p>
+<div class="val">S$20–60K / company / year</div>
+</div>
+<div class="biz-card">
+<div class="biz-num">Track · 03</div>
+<h4>Grants and foundations</h4>
+<p>Tsao Foundation, Lien Foundation, Temasek Trust Community Foundation, Tote Board — the initial 3-year runway.</p>
+<div class="val">S$2–5M · 3 years</div>
+</div>
+</div>
+
+<div class="tam-bar">
+<span class="eyebrow">Five-year TAM ceiling</span>
+<p>Singapore alone: <em>S$25–40M</em> ARR. Small — but Jumpa's real value is as a <em>user-acquisition engine</em> feeding KinCare, Ubat and Kopi. Users who start with Jumpa are 3–4× more likely to adopt the clinical apps later.</p>
+</div>
+</div>
+</div>
+
+<!-- roadmap -->
+<div class="dd-block">
+<div class="dd-block-head reveal">
+  <span class="eyebrow">E · Build roadmap</span>
+  <h3>One precinct, one town, <em>one nation</em></h3>
+</div>
+
+<div class="roadmap reveal">
+<div class="rm-phase">
+<div class="p">0–6 months</div>
+<h4>One precinct</h4>
+<ul>
+<li>3–5 AACs in Tampines or Ang Mo Kio</li>
+<li>Team of 6: eng, PM, community manager, designer</li>
+<li>Singpass-verified helper profiles</li>
+<li>Block match board, on-the-way transparency</li>
+<li>SG Cares hour logging</li>
+<li>English, Mandarin, Malay</li>
+</ul>
+</div>
+<div class="rm-phase">
+<div class="p">6–12 months</div>
+<h4>One town</h4>
+<ul>
+<li>Full town — 15 AACs, 5–8 RCs</li>
+<li>Heat-alert cascade with NEA API</li>
+<li>AAC manager dashboard</li>
+<li>Dementia-friendly badge</li>
+<li>Intergenerational tutoring with MOE safeguarding</li>
+<li>Target retention at 12 weeks: >40%</li>
+</ul>
+</div>
+<div class="rm-phase">
+<div class="p">12–24 months</div>
+<h4>National</h4>
+<ul>
+<li>All 223 AACs via AIC contract</li>
+<li>Corporate CSR module launch</li>
+<li>Social prescription pilot · 2–3 polyclinics</li>
+<li>Cross-app referral with Ubat and KinCare</li>
+<li>Active Ageing Credits auto-redemption live</li>
+</ul>
+</div>
+<div class="rm-phase">
+<div class="p">24–36 months</div>
+<h4>Regional + moat</h4>
+<ul>
+<li>Hong Kong first (strong AAC equivalent)</li>
+<li>KL upper-middle estates</li>
+<li>Taipei pilot</li>
+<li>Build the social-graph moat: who helps whom, locally</li>
+<li>Data nobody else has: block-level trust network</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+</section>
+
+<!-- ========== closing ========== -->
+<section class="closing">
+<div class="frame">
+
+<div class="closing-grid">
+<div class="reveal">
+<span class="eyebrow">06 · Closing</span>
+<h2>Three convictions the research <em>will not let go</em>.</h2>
+</div>
+
+<div class="closing-points">
+<div class="closing-point reveal">
+<span class="eyebrow">Conviction · 01</span>
+<p>The biggest opportunity is <em>connective tissue</em>. Singapore has built world-class schemes. The seam between them — between Singpass, HealthHub, AACs, caregivers and family — is where a new app earns its keep.</p>
+</div>
+<div class="closing-point reveal">
+<span class="eyebrow">Conviction · 02</span>
+<p>Every senior-facing product must be <em>dual-user by default</em>. Senior and family co-pilot. Senior and MDW. Senior and AAC case manager. The solo self-service mental model has capped adoption at 1 in 5.</p>
+</div>
+<div class="closing-point reveal">
+<span class="eyebrow">Conviction · 03</span>
+<p>Design for the <em>coming</em> cohort, not the current one. The 45-year-old today is the 65-year-old of 2046: digitally fluent, smaller-family, often childless. The products that matter in twenty years are being imagined now.</p>
+</div>
+<div class="closing-point reveal">
+<span class="eyebrow">Start · here</span>
+<p>Ship Jumpa in one precinct within nine months. Ship Ubat to a polyclinic pilot within twelve. Run them as siblings from day one — shared design system, shared trust model, shared caregiver pattern. The 1 + 1 = 3 lives in the cross-referral between them.</p>
+</div>
+</div>
+</div>
+
+<div class="footer">
+<span>Singapore ageing · research → product · 2026</span>
+<span>Ten concepts · two deep dives</span>
+</div>
+
+</div>
+</section>
+
+<script>
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
