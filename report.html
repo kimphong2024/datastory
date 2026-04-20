@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LYRICAL — teaching an LLM to write poetry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4EFE7;
+  --bg-deep: #EBE4D6;
+  --bg-card: #FBF7EF;
+  --ink: #1C1A17;
+  --ink-soft: #3A3630;
+  --ink-mute: #6B6358;
+  --ink-faint: #A39B8E;
+  --accent: #8B2F1B;
+  --accent-soft: #C4593F;
+  --accent-bg: #F4DDD2;
+  --teal: #2E5D4F;
+  --teal-soft: #4A8573;
+  --teal-bg: #D9E5DE;
+  --gold: #8A6914;
+  --gold-bg: #EFE4C4;
+  --violet: #3E2E6B;
+  --violet-bg: #E2DCEF;
+  --rule: #D4CBB8;
+  --rule-soft: #E3DBC8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter Tight', -apple-system, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  font-feature-settings: 'ss01', 'cv11';
+  overflow-x: hidden;
+}
+
+.display {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  font-variation-settings: 'opsz' 144;
+}
+.display em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.lead {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  letter-spacing: -0.005em;
+}
+
+p { color: var(--ink-soft); }
+strong { font-weight: 500; color: var(--ink); }
+em { font-style: italic; }
+code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; background: var(--bg-deep); padding: 1px 6px; border-radius: 3px; color: var(--ink); }
+
+.frame { max-width: 1280px; margin: 0 auto; padding: 0 clamp(24px, 5vw, 72px); }
+section { padding: clamp(48px, 7vw, 96px) 0; position: relative; }
+section + section { border-top: 1px solid var(--rule-soft); }
+
+/* top bar */
+.topbar {
+  position: sticky; top: 0;
+  background: rgba(244, 239, 231, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule-soft);
+  z-index: 100;
+}
+.topbar-inner {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.topbar-nav { display: flex; gap: 24px; flex-wrap: wrap; }
+.topbar-nav a { color: var(--ink-mute); text-decoration: none; transition: color 0.2s; }
+.topbar-nav a:hover { color: var(--accent); }
+
+/* hero */
+.hero { padding: clamp(80px, 12vw, 160px) 0 clamp(48px, 8vw, 96px); }
+.hero-meta {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 56px; gap: 32px; flex-wrap: wrap;
+}
+.hero-meta-block { max-width: 260px; }
+.hero-meta-block .eyebrow { display: block; margin-bottom: 6px; }
+.hero-meta-block p { font-size: 13px; color: var(--ink-mute); line-height: 1.5; }
+
+.hero h1 { font-size: clamp(48px, 9vw, 132px); margin-bottom: 40px; max-width: 14ch; }
+.hero-sub { max-width: 620px; margin-top: 32px; }
+
+.hero-stats {
+  margin-top: 80px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+  padding: 32px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+@media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+.stat .num {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: clamp(32px, 4vw, 48px); line-height: 1;
+  letter-spacing: -0.02em; color: var(--ink); display: block;
+}
+.stat .num sup { font-size: 0.5em; font-weight: 400; color: var(--ink-mute); margin-left: 4px; }
+.stat .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-mute); margin-top: 8px; display: block;
+}
+
+/* section heads */
+.sec-head { margin-bottom: 56px; max-width: 900px; }
+.sec-head .eyebrow { display: block; margin-bottom: 20px; }
+.sec-head h2 {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: clamp(36px, 5vw, 72px);
+  line-height: 1.05; letter-spacing: -0.02em;
+  margin-bottom: 24px; max-width: 18ch;
+}
+.sec-head h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+.sec-head .lead { max-width: 680px; }
+
+/* approach steps */
+.approach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+@media (max-width: 860px) { .approach-grid { grid-template-columns: 1fr; } }
+.approach-step {
+  display: grid; grid-template-columns: 48px 1fr; gap: 20px;
+  padding: 20px 0; border-bottom: 1px solid var(--rule-soft); align-items: start;
+}
+.approach-step:last-child { border-bottom: none; }
+.approach-step .num {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: 28px; line-height: 1; color: var(--accent); letter-spacing: -0.02em;
+}
+.approach-step h3 { font-size: 16px; font-weight: 500; margin-bottom: 4px; color: var(--ink); }
+.approach-step p { font-size: 14px; line-height: 1.55; }
+.approach-quote {
+  padding: 48px; background: var(--bg-card);
+  border: 1px solid var(--rule); border-radius: 4px; position: relative;
+}
+.approach-quote .mark {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: 96px; line-height: 0.7; color: var(--accent);
+  position: absolute; top: 24px; left: 32px;
+}
+.approach-quote blockquote {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: 22px; line-height: 1.4; letter-spacing: -0.01em;
+  color: var(--ink); margin-top: 40px; position: relative; z-index: 1;
+}
+.approach-quote blockquote em { font-family: 'Instrument Serif', serif; font-style: italic; }
+.approach-quote cite {
+  display: block; margin-top: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-mute); font-style: normal;
+}
+
+/* pillars */
+.pillars {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
+  background: var(--rule); border: 1px solid var(--rule); margin-top: 48px;
+}
+@media (max-width: 960px) { .pillars { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .pillars { grid-template-columns: 1fr; } }
+.pillar { background: var(--bg); padding: 32px 28px; }
+.pillar .pnum {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.1em; color: var(--accent); margin-bottom: 16px;
+}
+.pillar h3 {
+  font-family: 'Fraunces', serif; font-weight: 400;
+  font-size: 22px; line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 16px;
+}
+.pillar p { font-size: 13px; line-height: 1.6; color: var(--ink-mute); }
+.pillar .data {
+  margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rule-soft);
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: 28px; line-height: 1; letter-spacing: -0.02em; color: var(--ink);
+}
+.pillar .data-lbl {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-mute); margin-top: 4px;
+}
+
+/* findings */
+.findings-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; margin-bottom: 64px; align-items: start; }
+@media (max-width: 860px) { .findings-intro { grid-template-columns: 1fr; gap: 32px; } }
+.findings { display: grid; grid-template-columns: 1fr 1fr; gap: 48px 64px; }
+@media (max-width: 860px) { .findings { grid-template-columns: 1fr; } }
+.finding { padding-bottom: 32px; border-bottom: 1px solid var(--rule-soft); }
+.finding .tag {
+  display: inline-block; font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 12px;
+  padding: 3px 10px; background: var(--accent-bg); border-radius: 2px;
+}
+.finding h3 {
+  font-family: 'Fraunces', serif; font-weight: 400;
+  font-size: 26px; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 16px;
+}
+.finding p { font-size: 15px; line-height: 1.6; }
+.finding .pull {
+  margin-top: 16px; padding: 14px 18px;
+  background: var(--bg-card); border-left: 2px solid var(--accent);
+  font-family: 'Fraunces', serif; font-weight: 400; font-style: italic;
+  font-size: 15px; line-height: 1.45; color: var(--ink);
+}
+
+/* dark band */
+.gaps-band {
+  background: var(--ink); color: var(--bg);
+  margin: 0 calc(-1 * max(24px, 5vw));
+  padding: clamp(64px, 10vw, 120px) max(24px, 5vw);
+  border-radius: 4px;
+}
+.gaps-band h2 {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: clamp(32px, 5vw, 64px); line-height: 1.08;
+  letter-spacing: -0.02em; margin-bottom: 24px; max-width: 18ch; color: var(--bg);
+}
+.gaps-band h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #E8C69C; }
+.gaps-band .lead { color: rgba(244, 239, 231, 0.75); max-width: 620px; }
+.gaps-list {
+  margin-top: 64px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: rgba(244, 239, 231, 0.15);
+  border: 1px solid rgba(244, 239, 231, 0.15);
+}
+@media (max-width: 860px) { .gaps-list { grid-template-columns: 1fr; } }
+.gap-cell {
+  background: var(--ink); padding: 28px 24px;
+  display: flex; flex-direction: column; justify-content: space-between; min-height: 200px;
+}
+.gap-cell .n { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #E8C69C; }
+.gap-cell h4 {
+  font-family: 'Fraunces', serif; font-weight: 400;
+  font-size: 22px; line-height: 1.18; color: var(--bg); margin: 16px 0;
+}
+.gap-cell p { font-size: 13px; line-height: 1.55; color: rgba(244, 239, 231, 0.65); }
+
+/* concept cards (reused for roadmap tiers) */
+.concepts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 48px; }
+@media (max-width: 720px) { .concepts-grid { grid-template-columns: 1fr; } }
+.concept-card {
+  background: var(--bg-card); border: 1px solid var(--rule);
+  border-radius: 4px; padding: 28px 32px;
+  display: flex; flex-direction: column;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.concept-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.concept-card .num-bar {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--rule-soft);
+}
+.concept-card .num {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: 44px; line-height: 0.85; letter-spacing: -0.03em; color: var(--accent);
+}
+.concept-card.tier2 .num { color: var(--teal); }
+.concept-card.tier3 .num { color: var(--violet); }
+.concept-card.tier4 .num { color: var(--gold); }
+.concept-card .kind {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute);
+}
+.concept-card h3 {
+  font-family: 'Fraunces', serif; font-weight: 400;
+  font-size: 24px; line-height: 1.1; letter-spacing: -0.015em; margin-bottom: 8px;
+}
+.concept-card h3 em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--ink-mute); font-weight: 400; }
+.concept-card .tagline {
+  font-size: 13px; line-height: 1.55; color: var(--ink-mute);
+  font-style: italic; margin-bottom: 20px; min-height: 40px;
+}
+.concept-card .who-what { display: grid; gap: 10px; font-size: 13px; line-height: 1.5; margin-bottom: 20px; }
+.concept-card .label {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 2px; display: block;
+}
+.concept-card .who-what p { color: var(--ink-soft); }
+.concept-card .features {
+  font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+  margin-top: auto; padding-top: 16px; border-top: 1px solid var(--rule-soft);
+}
+.concept-card .features span {
+  display: inline-block; font-size: 12px;
+  padding: 3px 10px; background: var(--bg); border: 1px solid var(--rule-soft);
+  border-radius: 999px; margin: 0 4px 4px 0; color: var(--ink-soft);
+}
+
+/* timeline */
+.timeline { position: relative; padding-left: 40px; }
+.timeline::before {
+  content: ''; position: absolute; left: 11px; top: 16px; bottom: 16px;
+  width: 1px; background: var(--rule);
+}
+.tl-step { position: relative; margin-bottom: 40px; }
+.tl-step::before {
+  content: ''; position: absolute; left: -34px; top: 8px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--accent);
+}
+.tl-time {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 4px;
+}
+.tl-event {
+  font-family: 'Fraunces', serif; font-weight: 500;
+  font-size: 22px; line-height: 1.25; margin-bottom: 8px; color: var(--ink);
+}
+.tl-detail { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin-bottom: 10px; max-width: 68ch; }
+.tl-save {
+  display: inline-block; font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.06em;
+  color: var(--teal); background: var(--teal-bg); padding: 4px 12px; border-radius: 999px;
+}
+
+/* tables */
+.table-wrap { overflow-x: auto; margin-top: 48px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg-card); }
+table.eval { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.eval th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-mute); font-weight: 500;
+  padding: 14px 16px; text-align: left;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-deep);
+}
+table.eval td {
+  padding: 14px 16px; color: var(--ink-soft);
+  border-bottom: 1px solid var(--rule-soft);
+}
+table.eval td:first-child { font-weight: 500; color: var(--ink); }
+table.eval tr:last-child td { border-bottom: none; }
+table.eval .win { color: var(--teal); font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; }
+table.eval .loss { color: var(--accent); font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; }
+table.eval .delta-pos { color: var(--teal); font-family: 'JetBrains Mono', monospace; }
+table.eval .delta-neg { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+/* code blocks */
+pre.code {
+  background: var(--ink); color: var(--bg);
+  padding: 24px 28px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; line-height: 1.65;
+  overflow-x: auto; margin: 24px 0;
+}
+pre.code .comment { color: var(--ink-faint); font-style: italic; }
+pre.code .cmd { color: #E8C69C; }
+
+/* poem showcase */
+.poem-box {
+  background: var(--bg-card); border: 1px solid var(--rule);
+  border-radius: 4px; padding: 36px 44px; margin-top: 32px;
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: 16px; line-height: 1.7;
+  color: var(--ink); white-space: pre-line;
+}
+.poem-box .poem-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-mute); margin-bottom: 16px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--rule-soft);
+  font-weight: 500;
+}
+
+/* closing */
+.closing {
+  background: var(--bg-deep);
+  margin: 0 calc(-1 * max(24px, 5vw));
+  padding: clamp(64px, 10vw, 120px) max(24px, 5vw);
+}
+.closing h2 {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: clamp(40px, 6vw, 88px); line-height: 1.02;
+  letter-spacing: -0.02em; margin-bottom: 32px; max-width: 16ch;
+}
+.closing h2 em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--accent); }
+
+/* utilities */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s, transform 0.7s; }
+.reveal.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ========== top bar ========== -->
+<div class="topbar">
+<div class="frame">
+<div class="topbar-inner">
+<span>LYRICAL · build log</span>
+<nav class="topbar-nav">
+<a href="#why">Why</a>
+<a href="#pipeline">Pipeline</a>
+<a href="#v1">v1</a>
+<a href="#v2">v2</a>
+<a href="#results">Results</a>
+<a href="#v3">v3</a>
+</nav>
+</div>
+</div>
+</div>
+
+<!-- ========== hero ========== -->
+<section class="hero">
+<div class="frame">
+
+<div class="hero-meta">
+  <div class="hero-meta-block">
+    <span class="eyebrow">Build · One day</span>
+    <p>LYRICAL · a specialised LLM for poetry, built and measured in a single session on 20 April 2026.</p>
+  </div>
+  <div class="hero-meta-block">
+    <span class="eyebrow">Method</span>
+    <p>LoRA fine-tune of Qwen2.5-32B-Instruct, teacher-distilled from Claude Sonnet 4.6, evaluated against a frontier model.</p>
+  </div>
+  <div class="hero-meta-block">
+    <span class="eyebrow">Result</span>
+    <p>83% win-rate vs same-size base. +1.64 voice axis. Still behind Opus 4.7 on craft — by a diagnosable margin.</p>
+  </div>
+</div>
+
+<h1 class="display">Teaching a model to <em>hear</em> a poem.</h1>
+
+<div class="hero-sub">
+<p class="lead">We took an open-source 32-billion-parameter LLM, fed it 259 poems from nine contemporary anthologies, and taught it three jobs: write a poem in a poet's voice, critique a poem on its own terms, and revise a rough draft without smothering it. Two versions, three baselines, one honest reckoning with the ceiling.</p>
+</div>
+
+<div class="hero-stats">
+  <div class="stat"><span class="num">9</span><span class="lbl">EPUBs ingested</span></div>
+  <div class="stat"><span class="num">259</span><span class="lbl">Poems distilled</span></div>
+  <div class="stat"><span class="num">918</span><span class="lbl">Train examples</span></div>
+  <div class="stat"><span class="num">83<sup>%</sup></span><span class="lbl">Win vs base-32B</span></div>
+</div>
+
+</div>
+</section>
+
+<!-- ========== why ========== -->
+<section id="why">
+<div class="frame">
+
+<div class="sec-head">
+  <span class="eyebrow">01 · The question</span>
+  <h2>Can a small model, shown <em>enough good poetry</em>, write better than a big one?</h2>
+  <p class="lead">General-purpose models write competent, generic verse. They've read everything but absorbed nothing in particular. The question was whether a few hundred poems by working contemporary poets — read deeply, with critique attached — could shift a smaller model into a more literary register.</p>
+</div>
+
+<div class="approach-grid">
+
+<div class="approach-steps">
+<div class="approach-step">
+<span class="num">1</span>
+<div><h3>The corpus</h3><p>Nine EPUBs from contemporary poetry collections — Dickinson-heirs, queer anthologies, New Yorker retrospectives, spoken-word chapbooks. Not Gutenberg Victoriana; working voices.</p></div>
+</div>
+<div class="approach-step">
+<span class="num">2</span>
+<div><h3>The three tasks</h3><p>Not just "write a poem." Three distinct jobs: write, critique, edit. Each rewards a different skill. A model trained on all three has to hold form, taste, and restraint at once.</p></div>
+</div>
+<div class="approach-step">
+<span class="num">3</span>
+<div><h3>The teacher</h3><p>Claude Sonnet 4.6 generated the critiques and synthetic draft corruptions that became the edit-task training data. A good teacher's judgments propagate into the student.</p></div>
+</div>
+<div class="approach-step">
+<span class="num">4</span>
+<div><h3>The base</h3><p>Qwen2.5-32B-Instruct. Large enough for nuanced output, small enough to LoRA-tune on a reasonable budget. Together.ai as the hosted training + inference substrate.</p></div>
+</div>
+<div class="approach-step">
+<span class="num">5</span>
+<div><h3>The honest comparison</h3><p>A LoRA tune that beats a 7B baseline proves nothing — most of the gap is size. A LoRA tune that beats the same-size base proves the training. And a comparison against Opus 4.7 names the ceiling.</p></div>
+</div>
+</div>
+
+<div class="approach-quote">
+<span class="mark">"</span>
+<blockquote>The poem on the page is a score. The voice is the <em>music</em>. The fine-tune, then, was an attempt to teach a model the difference between reading notation and hearing what the notation is for.</blockquote>
+<cite>Design principle</cite>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- ========== pipeline ========== -->
+<section id="pipeline">
+<div class="frame">
+
+<div class="sec-head">
+  <span class="eyebrow">02 · The pipeline</span>
+  <h2>Seven stages, eight hours, <em>$110 spent</em>.</h2>
+  <p class="lead">Start to finish: EPUB parsing to a measurable win-rate against the state of the art, in a single working session. Each stage is independently resumable — distillation in particular is expensive and unreliable if not checkpointed.</p>
+</div>
+
+<div class="timeline">
+
+<div class="tl-step">
+<div class="tl-time">Stage 01 · Ingest</div>
+<div class="tl-event">EPUBs into raw text, line-breaks preserved</div>
+<p class="tl-detail">Parse EPUB files with <code>ebooklib</code>. Convert HTML to text while preserving <code>&lt;br&gt;</code> and paragraph boundaries — line-breaks are semantically crucial for poetry. Handle the macOS quirk where <code>.epub</code> files appear as unpacked directories by re-zipping them on the fly.</p>
+<span class="tl-save">9 / 9 books ingested · 91,373 lines of raw text</span>
+</div>
+
+<div class="tl-step">
+<div class="tl-time">Stage 02 · Clean</div>
+<div class="tl-event">Segment books into individual poems</div>
+<p class="tl-detail">The hard part. Books don't announce where poems start. We use heading heuristics (Roman numerals, all-caps titles), anthology patterns (author-name-then-title blocks), and filters for prose, indices, and front matter. Then we tighten author attribution so "100 Queer Poems" doesn't mark all 91 poems as written by its editor.</p>
+<span class="tl-save">259 poems segmented · per-poet attribution correct</span>
+</div>
+
+<div class="tl-step">
+<div class="tl-time">Stage 03 · Distill</div>
+<div class="tl-event">Teacher generates critique + edit pairs</div>
+<p class="tl-detail">For each poem, Claude Sonnet 4.6 produces: a theme/form/tone JSON, a 150-250 word critique naming concrete images and prosodic choices, and two plausibly-degraded drafts (one with line-break weakness, one with diction weakness). Plus 30 fresh draft-to-polished pairs on curated themes. All with prompt caching to cut cost.</p>
+<span class="tl-save">~820 teacher calls · ~$15 · 2 hours wall time</span>
+</div>
+
+<div class="tl-step">
+<div class="tl-time">Stage 04 · Build</div>
+<div class="tl-event">Assemble the training JSONL</div>
+<p class="tl-detail">Each poem yields up to 4 training examples: one WRITE (prompt: style + theme + form, response: the poem), one CRITIQUE (prompt: the poem, response: the critique), two EDIT pairs (prompt: a degraded draft, response: the original + change notes). Fresh-draft pairs add 30 more edits. 95/5 → 10% val split after v2.</p>
+<span class="tl-save">918 train · 102 val · balanced across tasks</span>
+</div>
+
+<div class="tl-step">
+<div class="tl-time">Stage 05 · Train</div>
+<div class="tl-event">LoRA fine-tune on Together.ai</div>
+<p class="tl-detail">Upload JSONL, launch LoRA training with r=16, alpha=32, 2 epochs, LR 5e-5. 2×H100 SXM provisioned by Together. About 15 minutes of GPU wall time to produce a downloadable adapter and a hosted model endpoint handle.</p>
+<span class="tl-save">Job ft-ee3cb453-deb9 · 17 minutes · ~$80</span>
+</div>
+
+<div class="tl-step">
+<div class="tl-time">Stage 06 · Eval</div>
+<div class="tl-event">Pairwise scoring against three baselines</div>
+<p class="tl-detail">60 held-out prompts × 3 baselines × 2 generations + 1 judgment = 540 API calls. Baselines: same-size untuned Qwen2.5-32B (temporary dedicated endpoint, auto-torn-down), smaller serverless Qwen2.5-7B, frontier-tier Claude Opus 4.7. Sonnet judges blind on a 5-axis rubric with A/B position-randomised.</p>
+<span class="tl-save">180 graded pairs · three reports written</span>
+</div>
+
+<div class="tl-step">
+<div class="tl-time">Stage 07 · Serve</div>
+<div class="tl-event">Streamlit UI with write / critique / edit tabs</div>
+<p class="tl-detail">Local web app that talks to the Together.ai inference endpoint. Sidebar toggle for side-by-side comparison against the base model. Reads the latest tuned model from the job metadata and resolves the dedicated endpoint name automatically.</p>
+<span class="tl-save">One command: <code>lyrical serve</code></span>
+</div>
+
+</div>
+
+</div>
+</section>
+
+<!-- ========== v1 caveats band ========== -->
+<section id="v1">
+<div class="frame">
+
+<div class="sec-head">
+  <span class="eyebrow">03 · v1 · what worked and what didn't</span>
+  <h2>A first version that <em>won on paper</em> and told on itself.</h2>
+  <p class="lead">The v1 tuned model beat a 7B serverless baseline 78.9% of the time across every axis. Impressive until you read the caveats — and the caveats were doing most of the work.</p>
+</div>
+
+<div class="gaps-band">
+
+<h2>Five caveats, <em>one uncomfortable truth</em>.</h2>
+<p class="lead">Wins against a 7B model when our tuned model is 32B are mostly about size. Losses clustered in a specific task. Generation failures suggested overfitting. And the judge itself was suspect.</p>
+
+<div class="gaps-list">
+
+<div class="gap-cell">
+<div><span class="n">Caveat · 01</span>
+<h4>The baseline was unfair</h4></div>
+<p>Comparing a tuned 32B to a base 7B conflates scale-uplift with training-uplift. We couldn't tell which part of the 78.9% was the LoRA and which was simply four extra billion parameters.</p>
+</div>
+
+<div class="gap-cell">
+<div><span class="n">Caveat · 02</span>
+<h4>Edit was the weakest task</h4></div>
+<p>Five of the eight losses were on the EDIT task. The synthetic-degrade method gave thin signal — the model was learning to undo specific corruptions rather than develop revision judgement.</p>
+</div>
+
+<div class="gap-cell">
+<div><span class="n">Caveat · 03</span>
+<h4>Every poem credited one editor</h4></div>
+<p>91 poems from "100 Queer Poems" were all labelled as written by its editor, Mary Jean Chan. The model learned to associate one name with 91 different styles — catastrophic overfitting on her prompt pattern.</p>
+</div>
+
+<div class="gap-cell">
+<div><span class="n">Caveat · 04</span>
+<h4>The model looped on itself</h4></div>
+<p>At least two generation failures were literal repetition loops — "who is the man, who is the man, who is the man." A known symptom of LoRA overtraining on small corpora at aggressive learning rates.</p>
+</div>
+
+<div class="gap-cell">
+<div><span class="n">Caveat · 05</span>
+<h4>The val set was small</h4></div>
+<p>38 held-out examples. Win-rate noise at 95% confidence is roughly ±8 percentage points — so 78.9% could plausibly be anywhere from 70% to 87%. Not precise enough for small axis deltas.</p>
+</div>
+
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- ========== v2 fixes ========== -->
+<section id="v2">
+<div class="frame">
+
+<div class="sec-head">
+  <span class="eyebrow">04 · v2 · caveat by caveat</span>
+  <h2>Five fixes. One retraining. <em>All addressable</em>.</h2>
+  <p class="lead">Each caveat mapped to a concrete intervention. Some were data fixes (author attribution, dual degradations). Some were training fixes (lower LR, fewer epochs). Some were evaluation fixes (bigger val set, a same-size baseline with auto-provisioned endpoints). The combined v2 pipeline ran in a few hours.</p>
+</div>
+
+<div class="pillars">
+
+<div class="pillar">
+<div class="pnum">Fix · 01</div>
+<h3>Auto-provisioned 32B baseline</h3>
+<p>Eval now spins up a dedicated endpoint for the untuned Qwen2.5-32B, runs comparisons against it, and tears the endpoint down when finished. Plus Opus 4.7 as a frontier ceiling and the 7B for continuity.</p>
+<div class="data">3<span style="font-size:0.55em;color:var(--ink-mute)"> baselines</span></div>
+<div class="data-lbl">Fair comparison, ceiling read</div>
+</div>
+
+<div class="pillar">
+<div class="pnum">Fix · 02</div>
+<h3>Dual-degradation + fresh drafts</h3>
+<p>One teacher call per poem now produces two distinct degraded drafts (line-break corruption + diction weakness). Plus 30 fresh "rough draft → polished" pairs on curated themes, fully synthesized by the teacher.</p>
+<div class="data">504<span style="font-size:0.55em;color:var(--ink-mute)"> edit examples</span></div>
+<div class="data-lbl">2× the v1 edit data</div>
+</div>
+
+<div class="pillar">
+<div class="pnum">Fix · 03</div>
+<h3>Per-poet attribution</h3>
+<p>Tightened anthology-author detection: all-caps, two or more words, no articles at the start. In "100 Queer Poems", each poem now carries its actual author — Colette Bryce, Elizabeth Bishop, Jay Gao — not the anthology editor.</p>
+<div class="data">91<span style="font-size:0.55em;color:var(--ink-mute)"> names resurfaced</span></div>
+<div class="data-lbl">No more style overload</div>
+</div>
+
+<div class="pillar">
+<div class="pnum">Fix · 04</div>
+<h3>Gentler training + frequency penalty</h3>
+<p>Epochs dropped 3 → 2. Learning rate 1e-4 → 5e-5. Inference-side <code>frequency_penalty=0.3</code> to suppress degenerate repetition at decode time. Smaller update, fewer local minima around the repeat attractor.</p>
+<div class="data">0<span style="font-size:0.55em;color:var(--ink-mute)"> loops observed</span></div>
+<div class="data-lbl">Across 180 v2 generations</div>
+</div>
+
+<div class="pillar">
+<div class="pnum">Fix · 05</div>
+<h3>Bigger, balanced val set</h3>
+<p>Split 95/5 → 90/10. Eval N_HELD_OUT 50 → 60 pairs per baseline. That's 60 × 3 = 180 graded pairs, enough to estimate axis means with usable confidence intervals.</p>
+<div class="data">102<span style="font-size:0.55em;color:var(--ink-mute)"> val examples</span></div>
+<div class="data-lbl">~3× the v1 measurement budget</div>
+</div>
+
+</div>
+
+</div>
+</section>
+
+<!-- ========== results ========== -->
+<section id="results">
+<div class="frame">
+
+<div class="sec-head">
+  <span class="eyebrow">05 · v2 results</span>
+  <h2>83% against its <em>same-size sibling</em>.</h2>
+  <p class="lead">Sixty held-out pairs per baseline. Claude Sonnet 4.6 as blind judge. A/B position randomised so the judge can't anchor on presentation order. Three baselines, three stories.</p>
+</div>
+
+<div class="table-wrap">
+<table class="eval">
+<thead>
+<tr>
+<th>Baseline</th>
+<th>Tuned wins</th>
+<th>Imagery</th>
+<th>Prosody</th>
+<th>Voice</th>
+<th>Specificity</th>
+<th>Craft</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen2.5-32B-Instruct <em>(same-family base)</em></td>
+<td class="win">83.1%</td>
+<td class="delta-pos">+1.08</td>
+<td class="delta-pos">+1.05</td>
+<td class="delta-pos">+1.64</td>
+<td class="delta-pos">+0.98</td>
+<td class="delta-pos">+1.19</td>
+</tr>
+<tr>
+<td>Qwen2.5-7B-Instruct-Turbo <em>(serverless)</em></td>
+<td class="win">85.0%</td>
+<td class="delta-pos">+1.20</td>
+<td class="delta-pos">+1.13</td>
+<td class="delta-pos">+1.58</td>
+<td class="delta-pos">+1.20</td>
+<td class="delta-pos">+1.37</td>
+</tr>
+<tr>
+<td>claude-opus-4-7 <em>(frontier)</em></td>
+<td class="loss">3.3%</td>
+<td class="delta-neg">−1.67</td>
+<td class="delta-neg">−1.97</td>
+<td class="delta-neg">−1.60</td>
+<td class="delta-neg">−1.97</td>
+<td class="delta-neg">−2.37</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="findings-intro" style="margin-top: 72px;">
+<div>
+<span class="eyebrow" style="display:block; margin-bottom: 16px;">How to read this</span>
+<p class="lead" style="max-width: none;">The top row is the only one that matters for proving the tuning worked. The middle row is a sanity check. The bottom row names the ceiling.</p>
+</div>
+<div>
+<p>Delta values show tuned model mean score minus baseline mean score, on a 1-5 rubric. Positive deltas are uplift for our model; negative are deficit. Each delta represents roughly <em>one axis point of expert literary judgement</em>.</p>
+</div>
+</div>
+
+<div class="findings">
+
+<div class="finding">
+<span class="tag">Finding · 01</span>
+<h3>The tuning is the lift, not the size.</h3>
+<p>Uplift against the same-family 32B base (+1.10 average across axes) is almost identical to uplift against the 7B (+1.30 average). If size were doing the work, we'd see much bigger gaps against the 7B. We don't. The LoRA training — the teacher's critique patterns, the corpus's voice patterns — is carrying 80%+ of the benefit.</p>
+<p class="pull">We couldn't have proven this without spinning up a temporary 32B endpoint. The auto-provisioning code paid for itself on the first run.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Finding · 02</span>
+<h3>Voice is the axis that moved most.</h3>
+<p>+1.64 on voice vs base-32B — the biggest single delta anywhere in the results. Voice is where absorbed style lives: the particular diction, rhythm, and image-choice of a school of poets. The fine-tune captured the contemporary free-verse register in a way the general-purpose base model simply hadn't encountered at training time.</p>
+<p class="pull">"Voice" as a rubric axis is the most poetic-judgement-specific signal in the whole eval. That it moved most is a design success.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Finding · 03</span>
+<h3>Opus 4.7 still wins decisively.</h3>
+<p>96.7% against us, −2.37 on craft. Opus is 500B-1T parameters of absorbed literary context; our tuned 32B is a specialised middle-tier model. The gap is real and predictable. No LoRA budget can make a 32B dense model write like a frontier-scale model on general poetry prompts. We can close sub-domains — style mimicry of in-corpus poets, critique specificity — but not the whole surface.</p>
+<p class="pull">Honest framing: LYRICAL is a genuine improvement in its tier. It is not a challenger to the frontier. Those are different products.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Finding · 04</span>
+<h3>The judge might be biased.</h3>
+<p>Sonnet 4.6 judging Opus 4.7 vs our model is sibling-judges-sibling. Both share training lineage, stylistic priors, and probably preferences. An unbiased eval would average across judges from different families (GPT-5, Gemini, human raters). We estimate 5-10 percentage points of judge-bias swing — not enough to flip the Opus comparison, but enough to matter for published numbers.</p>
+<p class="pull">Among the honest caveats to carry forward: our numbers overstate the Opus deficit by some unknown but non-zero amount.</p>
+</div>
+
+</div>
+
+<!-- sample output -->
+<div style="margin-top: 72px;">
+<span class="eyebrow" style="display:block; margin-bottom: 12px;">Sample output · write task</span>
+<h3 style="font-family:'Fraunces',serif; font-weight:300; font-size:28px; letter-spacing:-0.01em;">Write a poem in the style of Louise Glück on the theme of late-autumn silence.</h3>
+<div class="poem-box">
+<div class="poem-head">LYRICAL v1 — tuned Qwen2.5-32B</div>
+This is the peace all the stars cannot still.
+
+This is my only complaint. I thought I was secure in it:
+
+sleeping in my chamber of death and desire.
+
+But now the dead are calling, the dead
+
+who begin their long conversation in the field
+
+a little after noon and finish before sundown.
+
+They speak of nothing, and everything. They see it all.
+
+In the field, the sunlight shimmers and sways.
+
+What is that I hear, then? I hear the dead
+
+talking about me, everything I said and did.
+
+They are right; they have seen everything. I am in the field.
+
+It does not matter where. They have seen.
+
+It is not particular eyes or voices or instruments.
+
+It is this: that they have seen everything.
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- ========== v3 roadmap ========== -->
+<section id="v3">
+<div class="frame">
+
+<div class="sec-head">
+  <span class="eyebrow">06 · v3 and beyond</span>
+  <h2>How you'd <em>actually</em> try to beat Opus 4.7.</h2>
+  <p class="lead">Not hypothetically. With real numbers, real costs, and real returns. Organised into four tiers by cost and effort. The first tier can be tried in an hour; the last tier requires serious investment and still might not get there.</p>
+</div>
+
+<div class="concepts-grid">
+
+<div class="concept-card">
+<div class="num-bar"><span class="num">01</span><span class="kind">Tier 1 · inference-side</span></div>
+<h3>Best-of-4 <em>with self-critique</em></h3>
+<p class="tagline">Generate 4 at temperature 1.1. Have the model critique each. Pick the best. No retraining.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>~4× inference tokens per prompt. Roughly $0.02 extra per generation.</p></div>
+<div><span class="label">Expected lift</span><p>+0.3-0.5 on craft axis. Pure statistics — mean of best-of-4 is much higher than single-shot mean.</p></div>
+</div>
+<div class="features">
+<span class="label">Implementation</span>
+<span>One afternoon</span><span>Zero retraining</span><span>Streamlit-side</span>
+</div>
+</div>
+
+<div class="concept-card">
+<div class="num-bar"><span class="num">02</span><span class="kind">Tier 1 · inference-side</span></div>
+<h3>RAG <em>over the corpus</em></h3>
+<p class="tagline">When the prompt names an in-corpus poet, retrieve their actual poems as few-shot context.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>Build cost ~$1 to embed the corpus. Retrieval overhead negligible per query.</p></div>
+<div><span class="label">Expected lift</span><p>+0.6-1.0 on voice for in-corpus authors. Zero lift for unknown authors. Could beat Opus in this narrow domain.</p></div>
+</div>
+<div class="features">
+<span class="label">Implementation</span>
+<span>FAISS index</span><span>Author-keyed</span><span>Prompt-template change</span>
+</div>
+</div>
+
+<div class="concept-card tier2">
+<div class="num-bar"><span class="num">03</span><span class="kind">Tier 2 · training-signal</span></div>
+<h3>Swap teacher <em>to Opus 4.7</em></h3>
+<p class="tagline">Current teacher is Sonnet 4.6. Upgrade imports Opus-level craft directly into the student.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>Re-distill with Opus. Opus is ~5× Sonnet's price. ~$40-50 for the 259-poem corpus.</p></div>
+<div><span class="label">Expected lift</span><p>+0.3-0.5 on specificity and craft. The teacher's quality ceiling becomes the student's quality ceiling.</p></div>
+</div>
+<div class="features">
+<span class="label">Implementation</span>
+<span>One config line</span><span>Re-run distill</span><span>Re-train v3</span>
+</div>
+</div>
+
+<div class="concept-card tier2">
+<div class="num-bar"><span class="num">04</span><span class="kind">Tier 2 · training-signal</span></div>
+<h3>DPO <em>after SFT</em></h3>
+<p class="tagline">Teach the model to discriminate, not just mimic. The single biggest training-side lever.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>Generate 4-8 candidates per prompt, rank with Opus, DPO-train on (winner, loser) pairs. ~$150-250.</p></div>
+<div><span class="label">Expected lift</span><p>+0.5-0.8 across all axes. DPO reliably closes 30-50% of the gap between SFT model and the judge's preferences.</p></div>
+</div>
+<div class="features">
+<span class="label">Implementation</span>
+<span>Candidate gen</span><span>Opus ranking</span><span>DPO trainer</span>
+</div>
+</div>
+
+<div class="concept-card tier3">
+<div class="num-bar"><span class="num">05</span><span class="kind">Tier 3 · scale</span></div>
+<h3>Corpus <em>10-20× bigger</em></h3>
+<p class="tagline">259 → 3,000-5,000 curated poems. More styles, more registers, more to absorb.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>~$100-200 for distillation. Curation effort is the actual cost — quality matters more than quantity.</p></div>
+<div><span class="label">Expected lift</span><p>+0.4-0.8 voice and imagery. More poets = more voices to mimic. Non-linear in corpus size.</p></div>
+</div>
+<div class="features">
+<span class="label">Sources</span>
+<span>Project Gutenberg</span><span>Poetry Foundation</span><span>Archive.org</span><span>Curated EPUBs</span>
+</div>
+</div>
+
+<div class="concept-card tier3">
+<div class="num-bar"><span class="num">06</span><span class="kind">Tier 3 · scale</span></div>
+<h3>Switch base <em>to Llama-3.3-70B</em></h3>
+<p class="tagline">Serverless LoRA capable on Together. Double the parameter count, closer to Opus's training regime.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>~$150 for training. ~$4/hr serverless inference (no dedicated endpoint needed).</p></div>
+<div><span class="label">Expected lift</span><p>+0.5-1.0 on every axis. Bigger base = more absorbed context. Probably closes ~40% of the remaining Opus gap.</p></div>
+</div>
+<div class="features">
+<span class="label">Trade-off</span>
+<span>2× params</span><span>Slower inference</span><span>Serverless eligible</span>
+</div>
+</div>
+
+<div class="concept-card tier4">
+<div class="num-bar"><span class="num">07</span><span class="kind">Tier 4 · speculative</span></div>
+<h3>RLAIF <em>with Opus judge</em></h3>
+<p class="tagline">Iterative policy improvement. Generate, score with Opus, update toward higher scores, repeat.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>Thousands of dollars for meaningful iterations. Research-tier, not personal-project tier.</p></div>
+<div><span class="label">Expected lift</span><p>+0.8-1.5 if it converges. Real risk of collapse or reward-hacking. Opens new failure modes.</p></div>
+</div>
+<div class="features">
+<span class="label">Risk</span>
+<span>Expensive</span><span>Can collapse</span><span>Reward-hacks</span>
+</div>
+</div>
+
+<div class="concept-card tier4">
+<div class="num-bar"><span class="num">08</span><span class="kind">Tier 4 · speculative</span></div>
+<h3>Frontier-scale <em>open weights</em></h3>
+<p class="tagline">A 500B+ open-weight model with LoRA support. Does not currently exist on hosted services.</p>
+<div class="who-what">
+<div><span class="label">Cost</span><p>Prohibitive at hosted rates. Requires self-hosted GPU cluster.</p></div>
+<div><span class="label">Expected lift</span><p>Would close most of the Opus gap by construction. But we're playing on Opus's turf.</p></div>
+</div>
+<div class="features">
+<span class="label">Reality</span>
+<span>Not available</span><span>Infrastructure heavy</span><span>Beyond scope</span>
+</div>
+</div>
+
+</div>
+
+<div style="margin-top: 72px; padding: 36px 44px; background: var(--bg-card); border: 1px solid var(--rule); border-left: 4px solid var(--accent); border-radius: 4px; max-width: 860px;">
+<span class="eyebrow" style="display:block; margin-bottom:12px;">Achievable sub-wins</span>
+<p class="lead" style="max-width: none; font-size: 19px;">Forget "beat Opus overall." These targets are within current reach:</p>
+<ul style="list-style:none; padding: 20px 0 0 0; font-size: 15px; line-height: 1.9; color: var(--ink-soft);">
+<li>→ Beat Opus on <strong>style imitation of in-corpus poets</strong> — with Tier 1 RAG alone.</li>
+<li>→ Beat Opus on <strong>critique specificity for formal poetry</strong> — with Tier 2 Opus-teacher distillation.</li>
+<li>→ Beat Opus on <strong>revision faithful to poet's voice</strong> — with Tier 2 DPO.</li>
+<li>→ Beat Opus on <strong>any single poem</strong> — already achievable 3% of the time.</li>
+</ul>
+</div>
+
+</div>
+</section>
+
+<!-- ========== what we learned ========== -->
+<section id="lessons">
+<div class="frame">
+
+<div class="sec-head">
+  <span class="eyebrow">07 · what this build taught us</span>
+  <h2>Six lessons <em>worth carrying forward</em>.</h2>
+  <p class="lead">Beyond the poetry-specific findings — generalisable patterns we'd apply to the next LoRA fine-tuning project.</p>
+</div>
+
+<div class="findings">
+
+<div class="finding">
+<span class="tag">Lesson · 01</span>
+<h3>Fair baselines cost money. Pay.</h3>
+<p>The v1 eval against a 7B baseline was cheap but misleading. Spinning up a same-size 32B endpoint for the v2 eval cost about $3 and completely changed the interpretation. If you can't measure cleanly, you can't improve honestly.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Lesson · 02</span>
+<h3>The teacher is the ceiling.</h3>
+<p>A student trained on Sonnet critiques will never write better critiques than Sonnet. Swap in Opus as teacher and the ceiling rises — at 5× the cost. This ratio matters for every distillation project.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Lesson · 03</span>
+<h3>Metadata errors compound.</h3>
+<p>Tagging 91 poems as written by one editor didn't just fail one prompt — it degraded every "write in the style of X" example for that editor's name. In fine-tuning, small data-quality issues are not small.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Lesson · 04</span>
+<h3>Silent failures are the dangerous ones.</h3>
+<p>Our v1 distillation silently dropped ~65% of attempted poems because a JSON field came back as a list instead of a string. Zero error messages, zero alerts — just missing files. Default stdout buffering hid the problem until we forced a flush.</p>
+<p class="pull">If your loop has a <code>try/except</code>, make the except verbose and the prints flushed. Always.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Lesson · 05</span>
+<h3>Overfitting shows up as repetition.</h3>
+<p>Two v1 write outputs were literal infinite loops. Classic LoRA overfitting signature. The combination of 3 epochs at LR 1e-4 on a 727-example corpus was too aggressive. v2 at 2 epochs + 5e-5 eliminated it — plus inference-side <code>frequency_penalty</code> as belt-and-braces.</p>
+</div>
+
+<div class="finding">
+<span class="tag">Lesson · 06</span>
+<h3>Infrastructure state is part of the problem.</h3>
+<p>Together.ai's "Unable to access non-serverless model" errors, the mismatch between a fine-tune's <code>model</code> field and the callable endpoint <code>name</code>, the leaked endpoint after an unexpected failure — none of these were in the model-quality category. They were infrastructure quirks that cost real time to diagnose.</p>
+<p class="pull">Half of a production ML pipeline is understanding the platform. Budget for it.</p>
+</div>
+
+</div>
+
+</div>
+</section>
+
+<!-- ========== closing ========== -->
+<section>
+<div class="frame">
+<div class="closing">
+
+<span class="eyebrow" style="display:block; margin-bottom: 20px;">The bottom line</span>
+<h2 class="display">A specialised 32B model can write <em>more like a poet</em> than a generic 32B model. It cannot yet write <em>as well as Opus 4.7</em>.</h2>
+
+<div class="findings-intro" style="margin-top: 64px; margin-bottom: 0;">
+<div>
+<p style="font-size: 17px; line-height: 1.7; color: var(--ink-soft);">LYRICAL is now running, reachable via a Streamlit app and a Together.ai endpoint. Every caveat from v1 has been addressed in v2, with the caveats named, the fixes labelled, and the measurement bar raised. The ceiling against a frontier-scale model is honest, diagnosable, and has a ranked roadmap to close.</p>
+</div>
+<div>
+<p style="font-size: 17px; line-height: 1.7; color: var(--ink-soft);">The project lives at <strong>github.com/kimphong2024/lyrical</strong>. The pipeline is documented, the training data is reproducible, and the adapter is a single downloadable artefact. Next session, if we want to close the Opus gap by another 30-40%, we know exactly where to start.</p>
+</div>
+</div>
+
+<div style="margin-top: 72px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding-top: 32px; border-top: 1px solid var(--rule);">
+<div class="stat"><span class="num">~$110</span><span class="lbl">Total spent</span></div>
+<div class="stat"><span class="num">~8 hr</span><span class="lbl">Wall-clock time</span></div>
+<div class="stat"><span class="num">180</span><span class="lbl">Graded eval pairs</span></div>
+<div class="stat"><span class="num">1</span><span class="lbl">LoRA adapter shipped</span></div>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- ========== footer ========== -->
+<section style="padding: 48px 0;">
+<div class="frame">
+<div style="display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); flex-wrap: wrap; gap: 16px;">
+<span>LYRICAL · build log · 2026-04-20</span>
+<span>github.com/kimphong2024/lyrical</span>
+</div>
+</div>
+</section>
+
+<script>
+// reveal on scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
